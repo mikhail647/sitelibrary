@@ -72,13 +72,13 @@ def create_reader_types(apps, schema_editor):
     for type_name, defaults in default_types.items():
         if not ReaderType.objects.using(db_alias).filter(type_name=type_name).exists():
             print(f'\nCreating ReaderType: {type_name}')
-            ReaderType.objects.using(db_alias).create(
+                        ReaderType.objects.using(db_alias).create(
                 type_name=type_name,
                 max_books_allowed=defaults['max_books_allowed'],
                 loan_period_days=defaults['loan_period_days'],
                 can_use_reading_room=defaults['can_use_reading_room'],
-                can_use_loan=defaults['can_use_loan'],
-                fine_per_day=defaults.get('fine_per_day', Decimal('10.00')) # Get fine or default
+                can_use_loan=defaults['can_use_loan']
+                # Строка с fine_per_day удалена
             )
         else:
             # Optionally update existing types if needed
