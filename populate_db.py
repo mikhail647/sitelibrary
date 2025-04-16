@@ -303,26 +303,41 @@ def create_users_and_readers(reader_types):
     print(f"Finished generating {len(users)} users and {len(readers)} readers in memory.")
     # Bulk create users first
     print("Starting bulk create for Users...")
-    created_users = CustomUser.objects.bulk_create(users)
-    print(f"Created {len(created_users)} new users.")
-    user_map = {user.username: user for user in created_users} # Map usernames to user objects
+    CustomUser.objects.bulk_create(users) # Just execute, don't rely on return value immediately
+    print(f"Finished bulk create request for {len(users)} users.") # Simplified print
+
+    # --- Re-fetch users to ensure PKs are available --- 
+    print("Re-fetching users from database to get PKs...")
+    generated_username_list = [u.username for u in users] # Get usernames from original list
+    # Fetch users matching the generated usernames
+    fetched_users = CustomUser.objects.filter(username__in=generated_username_list)
+    user_map = {user.username: user for user in fetched_users} # Map usernames to FETCHED user objects
+    print(f"Fetched {len(user_map)} users from DB.")
+    # --- End re-fetch ---
 
     # Assign user PKs to reader objects before creating readers
     print("Assigning User PKs to Reader objects...") # Added print
     readers_to_create_final = []
     valid_reader_info = [] # Store info for readers that get a valid user_id
 
-    for i, reader_info in enumerate(readers):
-        username = users[i].username # Get username from original list in same order
-        user_obj = user_map.get(username)
+    # Iterate through the ORIGINAL user list to maintain order relative to readers list
+    for i, user_in_memory in enumerate(users):
+        reader_info = readers[i] # Get the corresponding reader info
+        username = user_in_memory.username # Use username from original user object
+
+        # user_obj = user_map.get(username) # Original lookup
+        user_obj_fetched = user_map.get(username) # Look up in the FETCHED map
+
         # Ensure the user object was created and has a PK
-        if user_obj and user_obj.pk:
+        # if user_obj and user_obj.pk:
+        if user_obj_fetched and user_obj_fetched.pk: # Check fetched object
             # Assign the user's primary key directly to the reader object
-            reader_info['reader_obj'].user_id = user_obj.pk
+            reader_info['reader_obj'].user_id = user_obj_fetched.pk
             readers_to_create_final.append(reader_info['reader_obj'])
             valid_reader_info.append(reader_info) # Keep track of valid ones for profiles
         else:
-             print(f"Warning: Could not find created user or user PK for username {username}. Skipping reader.")
+             # print(f"Warning: Could not find created user or user PK for username {username}. Skipping reader.")
+             print(f"Warning: Could not find FETCHED user or user PK for username {username}. Skipping reader.") # Modified warning
 
     print(f"Attempting to bulk create {len(readers_to_create_final)} readers...")
     # Bulk create only the readers that have a valid user_id assigned
