@@ -308,39 +308,54 @@ def create_users_and_readers(reader_types):
     user_map = {user.username: user for user in created_users} # Map usernames to user objects
 
     # Assign user PKs to reader objects before creating readers
+    print("Assigning User PKs to Reader objects...") # Added print
+    readers_to_create_final = []
+    valid_reader_info = [] # Store info for readers that get a valid user_id
+
     for i, reader_info in enumerate(readers):
         username = users[i].username # Get username from original list in same order
         user_obj = user_map.get(username)
-        if user_obj:
-            reader_info['reader_obj'].user = user_obj
+        # Ensure the user object was created and has a PK
+        if user_obj and user_obj.pk:
+            # Assign the user's primary key directly to the reader object
+            reader_info['reader_obj'].user_id = user_obj.pk
+            readers_to_create_final.append(reader_info['reader_obj'])
+            valid_reader_info.append(reader_info) # Keep track of valid ones for profiles
         else:
-             print(f"Warning: Could not find created user for username {username}") # Should not happen with bulk_create
+             print(f"Warning: Could not find created user or user PK for username {username}. Skipping reader.")
 
-    print("Starting bulk create for LibraryReaders...")
-    reader_objects_to_create = [r['reader_obj'] for r in readers]
-    created_readers = LibraryReader.objects.bulk_create(reader_objects_to_create)
+    print(f"Attempting to bulk create {len(readers_to_create_final)} readers...")
+    # Bulk create only the readers that have a valid user_id assigned
+    created_readers = LibraryReader.objects.bulk_create(readers_to_create_final)
     print(f"Created {len(created_readers)} new readers.")
-    reader_map = {reader.library_card_number: reader for reader in created_readers} # Map card numbers to reader objects
+
+    # Re-fetch might be safer if bulk_create doesn't return full objects reliably
+    # reader_map = {reader.library_card_number: reader for reader in created_readers}
+    # Let's try using the returned objects first, assuming they have PKs
+    reader_map = {reader.library_card_number: reader for reader in created_readers}
 
     # Now create specific profiles using the IDs from created_readers
-    for reader_info in readers:
-        reader_obj = reader_map.get(reader_info['reader_obj'].library_card_number)
-        if not reader_obj:
-             print(f"Warning: Could not find created reader for card {reader_info['reader_obj'].library_card_number}")
+    # Use valid_reader_info which corresponds to the successfully created readers
+    print("Preparing profiles for created readers...") # Added print
+    for reader_info in valid_reader_info:
+        # Find the corresponding CREATED reader object using the map
+        created_reader_obj = reader_map.get(reader_info['reader_obj'].library_card_number)
+        if not created_reader_obj:
+             print(f"Warning: Could not find created reader in map for card {reader_info['reader_obj'].library_card_number}")
              continue
 
         profile_type = reader_info['profile_type']
 
         if profile_type == 'student':
             student_profiles.append(StudentReader(
-                reader=reader_obj,
+                reader=created_reader_obj, # Use the object from the map
                 faculty=random.choice(faculties),
                 study_group=f"GR-{random.randint(100, 999)}",
                 course_number=random.randint(1, 5)
             ))
         elif profile_type == 'teacher':
              teacher_profiles.append(TeacherReader(
-                 reader=reader_obj,
+                 reader=created_reader_obj, # Use the object from the map
                  department=random.choice(departments),
                  position=random.choice(positions),
                  academic_degree=random.choice(degrees) if random.random() < 0.4 else None,
@@ -353,7 +368,7 @@ def create_users_and_readers(reader_types):
             elif reader_info['temp_type_name'] == 'Стажер': temp_type_choice = 'intern'
 
             temporary_profiles.append(TemporaryReader(
-                 reader=reader_obj,
+                 reader=created_reader_obj, # Use the object from the map
                  reader_type=temp_type_choice
             ))
 
