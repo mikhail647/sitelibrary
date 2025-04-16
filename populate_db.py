@@ -215,6 +215,12 @@ def create_users_and_readers(reader_types):
         print("Error: 'Обычный читатель' ReaderType not found. Ensure migration 0003 ran correctly.")
         return [], [] # Cannot proceed without default type
 
+    # --- Keep track of generated unique fields in this run ---
+    generated_usernames = set()
+    generated_emails = set()
+    generated_card_numbers = set()
+    # --- End track ---
+
     needed_readers = NUM_READERS - existing_readers_count
     print(f"Attempting to create {needed_readers} new readers...")
 
@@ -230,19 +236,27 @@ def create_users_and_readers(reader_types):
         first_name = fake.first_name()
         last_name = fake.last_name()
         username = f"{fake.user_name()}{random.randint(1, 999)}"
-        library_card_number = f"LIB-{random.randint(100000, 999999)}{created_count}"
+        email = fake.email() # Generate email
+        library_card_number = f"LIB-{random.randint(100000, 999999)}{created_count + existing_readers_count}" # Make card number more unique
 
-        # Avoid duplicates preemptively
-        if CustomUser.objects.filter(username=username).exists() or \
-           LibraryReader.objects.filter(library_card_number=library_card_number).exists():
-            print(f"Skipping duplicate user/reader (Username: {username}, Card: {library_card_number})")
+        # Avoid duplicates preemptively (check DB and current batch)
+        if CustomUser.objects.filter(username=username).exists() or username in generated_usernames or \
+           CustomUser.objects.filter(email=email).exists() or email in generated_emails or \
+           LibraryReader.objects.filter(library_card_number=library_card_number).exists() or library_card_number in generated_card_numbers:
+            print(f"Skipping duplicate user/reader (Username: {username}, Email: {email}, Card: {library_card_number})")
             continue
+
+        # --- Add generated fields to sets ---
+        generated_usernames.add(username)
+        generated_emails.add(email)
+        generated_card_numbers.add(library_card_number)
+        # --- End add ---
 
         # Create User first
         user = CustomUser(
             username=username,
             password=hashed_password, # Use pre-hashed password
-            email=fake.email(),
+            email=email, # Use generated email
             first_name=first_name,
             last_name=last_name,
             is_staff=False,
