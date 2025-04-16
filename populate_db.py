@@ -363,14 +363,16 @@ def create_users_and_readers(reader_types):
 
         if profile_type == 'student':
             student_profiles.append(StudentReader(
-                reader=created_reader_obj, # Use the object from the map
+                # reader=created_reader_obj, # Use the object from the map
+                reader_id=created_reader_obj.pk, # Assign reader PK directly
                 faculty=random.choice(faculties),
                 study_group=f"GR-{random.randint(100, 999)}",
                 course_number=random.randint(1, 5)
             ))
         elif profile_type == 'teacher':
              teacher_profiles.append(TeacherReader(
-                 reader=created_reader_obj, # Use the object from the map
+                 # reader=created_reader_obj, # Use the object from the map
+                 reader_id=created_reader_obj.pk, # Assign reader PK directly
                  department=random.choice(departments),
                  position=random.choice(positions),
                  academic_degree=random.choice(degrees) if random.random() < 0.4 else None,
@@ -383,7 +385,8 @@ def create_users_and_readers(reader_types):
             elif reader_info['temp_type_name'] == 'Стажер': temp_type_choice = 'intern'
 
             temporary_profiles.append(TemporaryReader(
-                 reader=created_reader_obj, # Use the object from the map
+                 # reader=created_reader_obj, # Use the object from the map
+                 reader_id=created_reader_obj.pk, # Assign reader PK directly
                  reader_type=temp_type_choice
             ))
 
