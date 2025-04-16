@@ -216,9 +216,12 @@ def create_users_and_readers(reader_types):
         return [], [] # Cannot proceed without default type
 
     needed_readers = NUM_READERS - existing_readers_count
+    print(f"Attempting to create {needed_readers} new readers...")
 
     while created_count < needed_readers and attempt < max_attempts:
         attempt += 1
+        if attempt % 100 == 0: # Print every 100 attempts
+            print(f"  Attempt {attempt}/{max_attempts}, Created {created_count}/{needed_readers} readers...")
         first_name = fake.first_name()
         last_name = fake.last_name()
         username = f"{fake.user_name()}{random.randint(1, 999)}"
@@ -278,7 +281,9 @@ def create_users_and_readers(reader_types):
         created_count += 1
 
 
+    print(f"Finished generating {len(users)} users and {len(readers)} readers in memory.")
     # Bulk create users first
+    print("Starting bulk create for Users...")
     created_users = CustomUser.objects.bulk_create(users)
     print(f"Created {len(created_users)} new users.")
     user_map = {user.username: user for user in created_users} # Map usernames to user objects
@@ -292,6 +297,7 @@ def create_users_and_readers(reader_types):
         else:
              print(f"Warning: Could not find created user for username {username}") # Should not happen with bulk_create
 
+    print("Starting bulk create for LibraryReaders...")
     reader_objects_to_create = [r['reader_obj'] for r in readers]
     created_readers = LibraryReader.objects.bulk_create(reader_objects_to_create)
     print(f"Created {len(created_readers)} new readers.")
@@ -333,10 +339,13 @@ def create_users_and_readers(reader_types):
             ))
 
     # Bulk create profiles
+    print("Starting bulk create for Student Profiles...")
     StudentReader.objects.bulk_create(student_profiles)
     print(f"Created {len(student_profiles)} student profiles.")
+    print("Starting bulk create for Teacher Profiles...")
     TeacherReader.objects.bulk_create(teacher_profiles)
     print(f"Created {len(teacher_profiles)} teacher profiles.")
+    print("Starting bulk create for Temporary Profiles...")
     TemporaryReader.objects.bulk_create(temporary_profiles)
     print(f"Created {len(temporary_profiles)} temporary profiles.")
 
@@ -522,6 +531,117 @@ def create_loans_and_fines(readers, copies, locations):
          print(f"Updated {updated_count} copy statuses.")
 
 
+@transaction.atomic
+def create_book_requests(users, books, locations):
+    print("Creating Book Requests...")
+    requests = []
+
+    if not users or not books or not locations:
+        print("Need users, books, and locations to create book requests.")
+        return
+
+    staff_users = list(CustomUser.objects.filter(role__in=['staff', 'admin'])) # Get staff/admin for processing
+    request_statuses = [s[0] for s in BookRequest._meta.get_field('status').choices]
+
+    num_requests = min(NUM_BOOK_REQUESTS, len(users) * len(books)) # Realistic limit
+    created_count = 0
+    attempt = 0
+    max_attempts = num_requests * 2
+
+    while created_count < num_requests and attempt < max_attempts:
+        attempt += 1
+        user = random.choice(users)
+        book = random.choice(books)
+        location = random.choice(locations)
+        status = random.choice(request_statuses)
+        processed_by = None
+        processed_date = None
+        notes = None
+
+        # Some statuses imply processing
+        if status not in ['pending', 'cancelled']:
+            if staff_users:
+                processed_by = random.choice(staff_users)
+            processed_date = fake.date_time_between(start_date='-30d', end_date='now', tzinfo=timezone.get_current_timezone())
+            if status == 'rejected' or random.random() < 0.2:
+                 notes = fake.sentence() # Add a note for rejected or some processed requests
+
+        # Check for potentially conflicting requests (simple check)
+        # if BookRequest.objects.filter(user=user, book=book, status__in=['pending', 'approved', 'issued']).exists():
+        #     continue # Skip if user already has an active request for this book
+
+        requests.append(BookRequest(
+            user=user,
+            book=book,
+            requested_location=location,
+            request_date=fake.date_time_between(start_date='-60d', end_date='now', tzinfo=timezone.get_current_timezone()),
+            status=status,
+            processed_by=processed_by,
+            processed_date=processed_date,
+            notes=notes
+            # loan field is tricky to populate here without complex matching logic
+        ))
+        created_count += 1
+
+    BookRequest.objects.bulk_create(requests)
+    print(f"Created {len(requests)} book requests.")
+
+
+@transaction.atomic
+def create_interlibrary_requests(readers, books):
+    print("Creating Interlibrary Requests...")
+    requests = []
+
+    if not readers or not books:
+        print("Need readers and books to create interlibrary requests.")
+        return
+
+    staff_users = list(CustomUser.objects.filter(role__in=['staff', 'admin']))
+    request_statuses = [s[0] for s in InterlibraryRequest._meta.get_field('request_status').choices]
+
+    num_requests = min(NUM_INTERLIBRARY_REQUESTS, len(readers) * len(books))
+    created_count = 0
+    attempt = 0
+    max_attempts = num_requests * 2
+
+    while created_count < num_requests and attempt < max_attempts:
+        attempt += 1
+        reader = random.choice(readers)
+        book = random.choice(books) # In reality, these might be books *not* in the catalog
+        status = random.choice(request_statuses)
+        processed_by = None
+        processed_date = None
+        staff_notes = None
+
+        # Some statuses imply processing
+        if status not in ['pending', 'cancelled']:
+             if staff_users:
+                 processed_by = random.choice(staff_users)
+             processed_date = fake.date_time_between(start_date='-30d', end_date='now', tzinfo=timezone.get_current_timezone())
+             if status == 'rejected' or random.random() < 0.2:
+                 staff_notes = fake.sentence()
+
+        # Check for potentially conflicting requests (simple check)
+        # if InterlibraryRequest.objects.filter(reader=reader, book=book, request_status__in=['pending', 'approved', 'processing', 'received', 'issued']).exists():
+        #      continue
+
+        requests.append(InterlibraryRequest(
+            reader=reader,
+            book=book,
+            request_date=fake.date_between(start_date='-90d', end_date='today'),
+            request_status=status,
+            required_by_date=fake.date_between(start_date='today', end_date='+30d') if random.random() < 0.5 else None,
+            notes=fake.paragraph(nb_sentences=2) if random.random() < 0.3 else None, # Reader notes
+            processed_by=processed_by,
+            processed_date=processed_date,
+            staff_notes=staff_notes # Staff notes
+        ))
+        created_count += 1
+
+    InterlibraryRequest.objects.bulk_create(requests)
+    print(f"Created {len(requests)} interlibrary requests.")
+
+
 # --- Main Execution ---
 if __name__ == '__main__':
     start_time = timezone.now()
@@ -551,6 +671,8 @@ if __name__ == '__main__':
     create_loans_and_fines(readers, copies, locations)
 
     # Add more function calls here for BookRequest, InterlibraryRequest if needed
+    create_book_requests(users, books, locations)
+    create_interlibrary_requests(readers, books)
 
     end_time = timezone.now()
     print(f"Script finished at: {end_time}")
