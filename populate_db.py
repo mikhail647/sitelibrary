@@ -218,6 +218,11 @@ def create_users_and_readers(reader_types):
     needed_readers = NUM_READERS - existing_readers_count
     print(f"Attempting to create {needed_readers} new readers...")
 
+    # --- Pre-hash the default password --- 
+    hashed_password = make_password('password123')
+    print("Pre-hashed default password.") # Added print
+    # --- End pre-hash ---
+
     while created_count < needed_readers and attempt < max_attempts:
         attempt += 1
         if attempt % 100 == 0: # Print every 100 attempts
@@ -236,7 +241,7 @@ def create_users_and_readers(reader_types):
         # Create User first
         user = CustomUser(
             username=username,
-            password=make_password('password123'), # Use a default password
+            password=hashed_password, # Use pre-hashed password
             email=fake.email(),
             first_name=first_name,
             last_name=last_name,
