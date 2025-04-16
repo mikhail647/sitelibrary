@@ -3,7 +3,7 @@ import django
 import random
 import argparse
 from decimal import Decimal
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 # Set up Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'libraryproject.settings')
@@ -24,7 +24,7 @@ from library.models import (
     BookCatalog, BookCopy, BookLoan, LibraryFine, InterlibraryRequest,
     BookRequest, StudentReader, TeacherReader, TemporaryReader, ReaderRegistration
 )
-from django.db import transaction, IntegrityError
+from django.db import transaction, IntegrityError, connection
 
 # --- Configuration ---
 # Default values - can be overridden by command line arguments
@@ -32,10 +32,11 @@ DEFAULT_CONFIG = {
     'NUM_AUTHORS': 150,
     'NUM_BOOKS': 500,
     'MIN_COPIES_PER_BOOK': 1,
-    'MAX_COPIES_PER_BOOK': 5,
+    'MAX_COPIES_PER_BOOK': 500,
     'NUM_LOCATIONS': 3,
-    'NUM_READERS': 1000,  # Minimum number of readers
-    'NUM_LOANS_PER_READER': 5,  # Average number of loans per reader
+    'NUM_READERS': 2000,  # Minimum number of readers
+    'NUM_LOANS_PER_READER': 2,  # Average number of loans per reader (changed from 5 to 2)
+    'NUM_STAFF': 5,  # Number of staff users to create
     'PCT_STUDENTS': 0.60,  # Percentage of readers who are students
     'PCT_TEACHERS': 0.25,  # Percentage of readers who are teachers/staff
     'PCT_TEMPORARY': 0.10,  # Percentage of readers who are temporary
@@ -64,6 +65,9 @@ parser.add_argument('--create-loans', action='store_true', help='Create loans an
 parser.add_argument('--create-requests', action='store_true', help='Create book requests')
 parser.add_argument('--create-interlibrary', action='store_true', help='Create interlibrary requests')
 parser.add_argument('--create-all', action='store_true', help='Create all data types')
+parser.add_argument('--create-staff', action='store_true', help='Create staff and admin users')
+parser.add_argument('--create-registrations', action='store_true', help='Create reader registrations')
+parser.add_argument('--clear-db', action='store_true', help='Clear database before populating (WARNING: ALL DATA WILL BE LOST)')
 
 # Parse arguments
 args = parser.parse_args()
@@ -89,11 +93,129 @@ fake = Faker(config['LOCALE'])
 # Create all by default if no specific creation flags are set
 create_all = args.create_all or not any([
     args.create_authors, args.create_books, args.create_readers,
-    args.create_loans, args.create_requests, args.create_interlibrary
+    args.create_loans, args.create_requests, args.create_interlibrary,
+    args.create_staff, args.create_registrations
 ])
 
 print("Starting database population script...")
 print(f"Configuration: {config}")
+
+@transaction.atomic
+def clear_database():
+    """Clear all library-related data from the database"""
+    print("WARNING: Clearing all library data from database...")
+    
+    # Confirm with the user unless running non-interactively
+    if os.isatty(0):  # Check if stdin is a terminal
+        confirmation = input("This will DELETE ALL DATA. Type 'yes' to confirm: ")
+        if confirmation.lower() != 'yes':
+            print("Database clear aborted.")
+            return False
+    
+    # Clear data in order considering foreign key relationships
+    # Start with dependent tables first
+    print("Deleting LibraryFine records...")
+    LibraryFine.objects.all().delete()
+    
+    print("Deleting BookLoan records...")
+    BookLoan.objects.all().delete()
+    
+    print("Deleting InterlibraryRequest records...")
+    InterlibraryRequest.objects.all().delete()
+    
+    print("Deleting BookRequest records...")
+    BookRequest.objects.all().delete()
+    
+    print("Deleting BookCopy records...")
+    BookCopy.objects.all().delete()
+    
+    print("Deleting book-author relations...")
+    # Delete m2m relations between books and authors
+    BookCatalog.authors.through.objects.all().delete()
+    
+    print("Deleting BookCatalog records...")
+    BookCatalog.objects.all().delete()
+    
+    print("Deleting BookAuthor records...")
+    BookAuthor.objects.all().delete()
+    
+    print("Deleting StudentReader records...")
+    StudentReader.objects.all().delete()
+    
+    print("Deleting TeacherReader records...")
+    TeacherReader.objects.all().delete()
+    
+    print("Deleting TemporaryReader records...")
+    TemporaryReader.objects.all().delete()
+    
+    print("Deleting ReaderRegistration records...")
+    ReaderRegistration.objects.all().delete()
+    
+    print("Deleting LibraryReader records...")
+    LibraryReader.objects.all().delete()
+    
+    print("Deleting user accounts (except superusers)...")
+    # Preserve superusers
+    CustomUser.objects.filter(is_superuser=False).delete()
+    
+    print("Deleting LibraryLocation records...")
+    LibraryLocation.objects.all().delete()
+    
+    # We don't delete ReaderType records as they are essential configuration
+    
+    print("Database cleared successfully.")
+    return True
+
+@transaction.atomic
+def create_staff_and_admin():
+    """Create admin and staff users"""
+    print("Creating staff and admin users...")
+    
+    # Check if admin already exists
+    if CustomUser.objects.filter(username='admin').exists():
+        print("Admin user already exists. Skipping.")
+    else:
+        # Create admin user
+        admin_user = CustomUser(
+            username="admin",
+            email="admin@library.example.com",
+            first_name="Главный",
+            last_name="Администратор",
+            password=make_password("admin123"),  # Change in production!
+            is_staff=True,
+            is_active=True,
+            role='admin'
+        )
+        admin_user.save()
+        print("Created admin user (username: admin, password: admin123)")
+    
+    # Create staff users
+    existing_staff = CustomUser.objects.filter(role='staff').count()
+    staff_to_create = config['NUM_STAFF'] - existing_staff
+    
+    if staff_to_create <= 0:
+        print(f"Already have {existing_staff} staff users. Skipping creation.")
+        return
+    
+    print(f"Creating {staff_to_create} staff users...")
+    staff_users = []
+    for i in range(staff_to_create):
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        username = f"staff{i+1}"
+        staff_users.append(CustomUser(
+            username=username,
+            email=f"{username}@library.example.com",
+            first_name=first_name,
+            last_name=last_name,
+            password=make_password("staff123"),  # Change in production!
+            is_staff=True,
+            is_active=True,
+            role='staff'
+        ))
+    
+    CustomUser.objects.bulk_create(staff_users)
+    print(f"Created {len(staff_users)} staff users (password: staff123)")
 
 @transaction.atomic
 def create_locations():
@@ -115,6 +237,56 @@ def create_locations():
     LibraryLocation.objects.bulk_create(locations)
     print(f"Created {len(locations)} new locations.")
     return list(LibraryLocation.objects.all())
+
+@transaction.atomic
+def create_reader_registrations(readers, locations):
+    """Create reader registrations in library locations"""
+    print("Creating reader location registrations...")
+    
+    existing_registrations = ReaderRegistration.objects.count()
+    if existing_registrations > 0:
+        print(f"Already have {existing_registrations} reader registrations. Skipping.")
+        return
+        
+    if not readers or not locations:
+        print("Need readers and locations to create registrations.")
+        return
+    
+    registrations = []
+    registration_count = 0
+    batch_size = min(config['BATCH_SIZE'], len(readers))
+    
+    # Create 1-2 registrations per reader
+    for reader in readers:
+        num_registrations = random.randint(1, min(2, len(locations)))
+        reader_locations = random.sample(locations, num_registrations)
+        
+        for location in reader_locations:
+            # Registration date is the reader's registration date
+            # Expiry date is typically 1 year later
+            expiry_date = reader.registration_date + timedelta(days=365)
+            
+            registrations.append(ReaderRegistration(
+                reader=reader,
+                location=location,
+                registration_date=reader.registration_date,
+                registration_expiry_date=expiry_date
+            ))
+            
+            registration_count += 1
+            
+            # Process in batches
+            if len(registrations) >= batch_size:
+                ReaderRegistration.objects.bulk_create(registrations, ignore_conflicts=True)
+                print(f"Created {len(registrations)} reader registrations")
+                registrations = []
+    
+    # Create any remaining registrations
+    if registrations:
+        ReaderRegistration.objects.bulk_create(registrations, ignore_conflicts=True)
+        print(f"Created {len(registrations)} reader registrations")
+        
+    print(f"Total reader registrations created: {registration_count}")
 
 @transaction.atomic
 def create_authors():
@@ -1109,13 +1281,18 @@ if __name__ == '__main__':
     start_time = timezone.now()
     print(f"Script started at: {start_time}")
 
-    # Ensure default reader types exist (or create them if migration didn't)
-    # This part assumes the 0003 migration successfully created the types.
-    # If not, you'd need to add code here to create them similar to the migration.
+    # Clear the database if requested
+    if args.clear_db:
+        success = clear_database()
+        if not success:
+            print("Exiting without making changes.")
+            exit(1)
+
+    # Ensure default reader types exist
     reader_types = list(ReaderType.objects.all())
     if not reader_types:
         print("Error: No ReaderType objects found. Please run migration '0003_create_default_reader_types' first.")
-        exit()
+        exit(1)
     else:
         print(f"Found {len(reader_types)} ReaderType objects.")
 
@@ -1127,6 +1304,10 @@ if __name__ == '__main__':
     users = []
     readers = []
 
+    # Create staff users first so they can be referenced by other tables
+    if create_all or args.create_staff:
+        create_staff_and_admin()
+
     if create_all or args.create_authors:
         locations = create_locations()
         authors = create_authors()
@@ -1136,6 +1317,9 @@ if __name__ == '__main__':
 
     if create_all or args.create_readers:
         users, readers = create_users_and_readers(reader_types)
+
+    if create_all or args.create_registrations:
+        create_reader_registrations(readers, locations)
 
     if create_all or args.create_loans:
         create_loans_and_fines(readers, copies, locations)
