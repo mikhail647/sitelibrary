@@ -112,6 +112,8 @@ def clear_database():
             print("Database clear aborted.")
             return False
     
+    print("Proceeding with database clear...")
+    
     # Clear data in order considering foreign key relationships
     # Start with dependent tables first
     print("Deleting LibraryFine records...")
