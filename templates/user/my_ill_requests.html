@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Мои Запросы МБА - Библиотека{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Мои Запросы по Межбиблиотечному Абонементу (МБА)</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if not reader %}
+        <div class="alert alert-warning" role="alert">
+            Ваш профиль читателя не найден. Функционал МБА недоступен.
+        </div>
+    {% else %}
+        <div class="mb-3">
+            <a href="{% url 'user_create_ill_request' %}" class="btn btn-primary">Создать новый запрос МБА</a>
+        </div>
+
+        {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID Запроса</th>
+                            <th>Книга</th>
+                            <th>Дата запроса</th>
+                            <th>Статус</th>
+                            <th>Требуется к дате</th>
+                            <th>Примечания</th>
+                            <th>Обработан</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                            <tr>
+                                <td>{{ req.request_id }}</td>
+                                <td>{{ req.book.book_title }}</td>
+                                <td>{{ req.request_date|date:"d.m.Y" }}</td>
+                                <td>{{ req.get_request_status_display }}</td>
+                                <td>{{ req.required_by_date|date:"d.m.Y"|default:"-" }}</td>
+                                <td>{{ req.notes|default:"-" }}</td>
+                                <td>
+                                    {% if req.processed_by %}
+                                        {{ req.processed_by.get_full_name|default:req.processed_by.username }} 
+                                        ({{ req.processed_date|date:"d.m.Y H:i" }})
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>У вас пока нет запросов МБА.</p>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %} 

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Панель администратора</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Пользователи</h5>
+                    <p class="card-text">
+                        Всего пользователей: {{ total_users }}<br>
+                        Активных: {{ active_users }}<br>
+                        Ожидают активации: {{ pending_activations }}
+                    </p>
+                    <a href="{% url 'admin_activate_users' %}" class="btn btn-primary">Управление пользователями</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Книги</h5>
+                    <p class="card-text">
+                        Всего книг: {{ total_books }}<br>
+                        Активных выдач: {{ active_loans }}<br>
+                        Просроченных: {{ overdue_loans }}
+                    </p>
+                    <a href="{% url 'admin_generate_report' %}" class="btn btn-primary">Сгенерировать отчет</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Быстрые действия</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/admin/" class="btn btn-primary">Админ-панель Django</a>
+                        <a href="{% url 'staff_active_loans' %}" class="btn btn-secondary">Активные выдачи</a>
+                        <a href="{% url 'manage_fines' %}" class="btn btn-warning">Управление штрафами</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

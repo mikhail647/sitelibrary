@@ -1,0 +1,267 @@
+/* libraryproject/static/css/custom.css */
+
+/* 1. Light Theme Foundation */
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    background-color: #ffffff; /* White background */
+    color: #212529; /* Default dark text */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 70px; /* Navbar height */
+    padding-bottom: 60px; /* Footer height */
+}
+
+main.container {
+    flex: 1; /* Allow main content to grow */
+    background-color: #ffffff; /* Ensure main area is white */
+}
+
+a {
+    color: #0d6efd; /* Standard link blue */
+    text-decoration: none; 
+}
+
+a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* 2. Dark Grey Navbar */
+.navbar {
+    background-color: #343a40 !important; 
+    border-bottom: 1px solid #495057; 
+    padding-top: 0; /* Adjust padding for raised effect */
+    padding-bottom: 0;
+}
+
+.navbar-brand {
+    font-weight: 500;
+    color: #f8f9fa !important; /* Light text for brand */
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding-top: 0.75rem; /* Add padding for spacing */
+    padding-bottom: 0.75rem;
+    border-top: 3px solid transparent; /* Add transparent top border for spacing active */
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+    color: #fff;
+}
+
+/* Style for the ACTIVE link */
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #fff; /* White text */
+    background-color: #495057; /* Slightly lighter grey background */
+    position: relative; /* Needed for potential pseudo-elements */
+    /* Add rounded top corners */
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    /* Add a distinct top border */
+    border-top: 3px solid #adb5bd; /* Light grey top border */
+    /* Optional: Lift it slightly */
+    transform: translateY(-2px);
+    margin-bottom: -2px; /* Compensate for the lift */
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Subtle top shadow */
+}
+
+/* Adjustments for dropdown toggle if needed */
+.navbar-dark .navbar-nav .nav-item.dropdown .nav-link.active {
+    /* Reset some active styles if it looks weird on a dropdown */
+    transform: none;
+    margin-bottom: 0;
+    box-shadow: none;
+    border-top-color: transparent; /* Maybe no top border for dropdown */
+    background-color: transparent; /* Maybe no background for dropdown */
+}
+
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* 3. Card Styling (Light Background) */
+.card {
+    margin-bottom: 1.5rem; 
+    background-color: #fff; /* White card background */
+    border: 1px solid #dee2e6; /* Standard light border */
+}
+
+.card-header {
+    font-weight: 500;
+    background-color: #f8f9fa; /* Light grey header */
+    border-bottom: 1px solid #dee2e6;
+    color: #212529; /* Dark text */
+}
+
+/* Style specific headers with dark grey if desired */
+.card-header.bg-primary {
+    background-color: #343a40 !important; /* Dark Grey */
+    color: #fff;
+    border-bottom: 1px solid #495057;
+}
+.card-header.bg-success {
+    background-color: #198754 !important; /* Keep success green */
+    color: #fff;
+}
+
+
+/* 4. Buttons (Standard Bootstrap Styles) */
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Override primary button to be dark grey */
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #343a40;
+    --bs-btn-border-color: #343a40;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #495057;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #495057;
+    --bs-btn-active-border-color: #495057;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #343a40;
+    --bs-btn-disabled-border-color: #343a40;
+}
+
+/* Keep other button colors standard */
+
+
+/* 5. Tables (Standard Light) */
+.table {
+    color: #212529; /* Default dark text */
+}
+
+.table thead {
+    background-color: #e9ecef; /* Lighter grey header */
+    color: #212529;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1; /* Subtle hover */
+}
+
+/* 6. Forms (Standard Light) */
+.form-label {
+    font-weight: 500;
+    color: #212529;
+}
+
+.form-control, .form-select {
+    background-color: #fff;
+    color: #212529;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #86b7fe; /* Bootstrap focus blue */
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+.profile-section {
+    background-color: #f8f9fa; /* Light grey background for these sections */
+    border: 1px solid #dee2e6 !important;
+    padding: 1rem;
+}
+
+.profile-section h5 {
+    color: #343a40; /* Dark grey heading */
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* 7. Select2 Styling (Ensure it matches light theme) */
+.select2-container--default .select2-selection--single {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    color: #212529;
+    height: calc(1.5em + .75rem + 2px); 
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    width: 100%;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #212529; 
+    line-height: 1.5em;
+    padding-left: 0;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #888 transparent transparent transparent;
+}
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent #888 transparent;
+}
+.select2-dropdown {
+    background-color: white;
+    border: 1px solid #aaa;
+    color: #212529;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    background-color: #fff;
+    color: #212529;
+    border: 1px solid #aaa;
+}
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #0d6efd; /* Standard blue highlight */
+    color: white;
+}
+.select2-results__option {
+    color: #212529;
+}
+span.select2-container {
+    width: 100% !important; 
+}
+
+/* 8. Footer */
+.footer {
+    background-color: #e9ecef; 
+    padding: 1.5rem 0;
+    margin-top: auto; 
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* Loading Overlay */
+#loading-overlay { /* Keep as is */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); 
+    z-index: 1060; 
+    display: none; 
+    align-items: center;
+    justify-content: center;
+}
+#loading-overlay.loading-active {
+    display: flex; 
+}
+
+/* Utility */
+.action-btn {
+    font-size: 0.85em;
+    padding: 0.25rem 0.5rem;
+} 

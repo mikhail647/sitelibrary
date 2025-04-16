@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Активные выдачи{% endblock %}
+
+{% block content %}
+<h2>Активные и просроченные выдачи</h2>
+
+<form method="get" action="" style="margin-bottom: 20px;" id="filter-form">
+    <input type="text" name="search" placeholder="Поиск по читателю, книге..." value="{{ search_query|default:'' }}" style="width: 300px; padding: 8px;">
+    <select name="status" style="padding: 8px;">
+        <option value="" {% if not status_filter %}selected{% endif %}>Все статусы</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активные</option>
+        <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Просроченные</option>
+    </select>
+    <button type="submit" style="padding: 8px 15px;">Найти</button>
+</form>
+
+{% if loans %}
+    {# Add form for multiple returns #}
+    <form method="post" action="{% url 'staff_return_multiple' %}" id="return-form">
+        {% csrf_token %}
+        {# Apply Bootstrap table classes #}
+        <div class="table-responsive"> {# Make table scroll horizontally on small screens #}
+            <table class="table table-striped table-hover table-bordered table-sm"> {# Added classes #}
+                <thead class="table-light"> {# Lighter header #}
+                    <tr>
+                        <th><input type="checkbox" id="select-all-loans"></th>
+                        <th>Читатель</th>
+                        <th>Книга</th>
+                        <th>Инв. номер</th>
+                        <th>Пункт выдачи</th>
+                        <th>Дата выдачи</th>
+                        <th>Дата возврата</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in loans %}
+                    <tr {% if loan.loan_status == 'overdue' %}style="background-color: #f8d7da;"{% endif %}>
+                        <td><input type="checkbox" name="loan_ids" value="{{ loan.loan_id }}" class="loan-checkbox"></td> {# Checkbox for each loan #}
+                        <td>
+                            {% if loan.reader.user %}
+                                {{ loan.reader.user.get_full_name|default:loan.reader.user.username }}
+                            {% else %}
+                                {{ loan.reader.first_name }} {{ loan.reader.last_name }}
+                            {% endif %}
+                            ({{ loan.reader.library_card_number }})
+                        </td>
+                        <td>{{ loan.copy.book.book_title }}</td>
+                        <td>{{ loan.copy.inventory_number }}</td>
+                        <td>{{ loan.location.location_name }}</td>
+                        <td>{{ loan.loan_date }}</td>
+                        <td>{{ loan.due_date }}</td>
+                        <td>{{ loan.get_loan_status_display }}</td>
+                        <td>
+                            {# Keep individual return button as well? Optional. #}
+                            <form action="{% url 'staff_return_book' loan.loan_id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn return-btn">Вернуть</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-danger mt-3">Вернуть выбранные</button> {# Bootstrap button #}
+    </form>
+
+    {# Add JavaScript for select all checkbox #}
+    <script>
+        document.getElementById('select-all-loans').addEventListener('change', function(event) {
+            var checkboxes = document.querySelectorAll('.loan-checkbox');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = event.target.checked;
+            });
+        });
+    </script>
+
+{% else %}
+    <p>Нет выдач, соответствующих вашему запросу.</p>
+{% endif %}
+
+{% endblock %} 

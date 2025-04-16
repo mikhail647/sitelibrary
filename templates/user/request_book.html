@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Запрос книги{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Запрос книги</h2>
+    </div>
+    <div class="card-body">
+        <p>Выберите книгу и желаемый пункт выдачи. Сотрудник библиотеки рассмотрит ваш запрос.</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {# Render form fields manually or use crispy forms #}
+            <div class="mb-3">
+                <label for="{{ form.book.id_for_label }}" class="form-label">{{ form.book.label }}</label>
+                {{ form.book }}
+                {% if form.book.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.book.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.requested_location.id_for_label }}" class="form-label">{{ form.requested_location.label }}</label>
+                {{ form.requested_location }}
+                {% if form.requested_location.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.requested_location.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить запрос</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

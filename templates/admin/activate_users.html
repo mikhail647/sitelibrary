@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Активация пользователей{% endblock %}
+
+{% block content %}
+<h2>Пользователи, ожидающие активации (Роли: Персонал, Администратор)</h2>
+
+{% if users_to_activate %}
+    <table>
+        <thead>
+            <tr>
+                <th>Логин</th>
+                <th>Email</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users_to_activate %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.first_name }}</td>
+                <td>{{ u.last_name }}</td>
+                <td>{{ u.get_role_display }}</td>
+                <td>{{ u.date_joined|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <form action="{% url 'admin_activate_user' u.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-btn return-btn">Активировать</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Нет пользователей, ожидающих активации.</p>
+{% endif %}
+
+<p style="margin-top: 20px;"><a href="{% url 'admin_dashboard' %}">Назад к панели администратора</a></p>
+
+{% endblock %} 

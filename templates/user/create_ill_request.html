@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Новый Запрос МБА - Библиотека{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Создать новый запрос по Межбиблиотечному Абонементу (МБА)</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ form.media }} {# Required for Select2Widget #}
+
+        <div class="mb-3">
+            <label for="{{ form.book.id_for_label }}" class="form-label">{{ form.book.label }}</label>
+            {{ form.book }}
+            {% if form.book.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.book.errors|striptags }}
+                </div>
+            {% endif %}
+            <div class="form-text">Начните вводить название книги для поиска.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.required_by_date.id_for_label }}" class="form-label">{{ form.required_by_date.label }}</label>
+            {{ form.required_by_date }}
+             {% if form.required_by_date.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.required_by_date.errors|striptags }}
+                </div>
+            {% endif %}
+       </div>
+
+        <div class="mb-3">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+            {{ form.notes }}
+             {% if form.notes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.notes.errors|striptags }}
+                </div>
+            {% endif %}
+       </div>
+
+        <button type="submit" class="btn btn-primary">Отправить запрос МБА</button>
+        <a href="{% url 'user_my_ill_requests' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{# Optional: Add JS if needed for Select2 initialization if not handled globally #}
+<script>
+// Basic Select2 initialization if you haven't done it in base.html
+// $(document).ready(function() {
+//     $('#{{ form.book.id_for_label }}').select2({
+//         placeholder: "Выберите книгу для запроса МБА",
+//         allowClear: true
+//     });
+// });
+</script>
+{% endblock %} 

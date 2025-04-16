@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация - Библиотека{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8"> {# Wider column for registration form #}
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h2 class="h5 mb-0">Регистрация нового пользователя</h2>
+            </div>
+            <div class="card-body">
+                <p>Пожалуйста, заполните форму ниже для создания учетной записи.</p>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}<div class="invalid-feedback">{{ form.username.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                             <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                            <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}<div class="invalid-feedback">{{ form.email.errors|striptags }}</div>{% endif %}
+                       </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                             <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                            <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required>
+                             {% if form.first_name.errors %}<div class="invalid-feedback">{{ form.first_name.errors|striptags }}</div>{% endif %}
+                         </div>
+                        <div class="col-md-6">
+                             <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                            <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required>
+                             {% if form.last_name.errors %}<div class="invalid-feedback">{{ form.last_name.errors|striptags }}</div>{% endif %}
+                         </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control {% if form.password.errors %}is-invalid{% endif %}" required>
+                            {% if form.password.errors %}<div class="invalid-feedback">{{ form.password.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+                            <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+                             {% if form.password2.errors %}<div class="invalid-feedback">{{ form.password2.errors|striptags }}</div>{% endif %}
+                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_profile_type" class="form-label">Тип профиля:</label>
+                        <select name="profile_type" id="id_profile_type" class="form-select" required>
+                            <option value="student" selected>Студент</option>
+                            <option value="teacher">Преподаватель</option>
+                            <option value="staff">Сотрудник (требует активации)</option>
+                            <option value="other">Обычный читатель</option> 
+                        </select>
+                    </div>
+
+                    {# Conditional Fields Sections #}
+                    <div id="student-fields" class="profile-section border p-3 rounded mb-3" style="display: none;">
+                        <h5>Данные студента</h5>
+                         <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.faculty.id_for_label }}" class="form-label">{{ form.faculty.label }}</label>
+                                <input type="text" name="{{ form.faculty.name }}" id="{{ form.faculty.id_for_label }}" class="form-control {% if form.faculty.errors %}is-invalid{% endif %}" value="{{ form.faculty.value|default:'' }}">
+                                {% if form.faculty.errors %}<div class="invalid-feedback">{{ form.faculty.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                 <label for="{{ form.study_group.id_for_label }}" class="form-label">{{ form.study_group.label }}</label>
+                                <input type="text" name="{{ form.study_group.name }}" id="{{ form.study_group.id_for_label }}" class="form-control {% if form.study_group.errors %}is-invalid{% endif %}" value="{{ form.study_group.value|default:'' }}">
+                                {% if form.study_group.errors %}<div class="invalid-feedback">{{ form.study_group.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                 <label for="{{ form.course_number.id_for_label }}" class="form-label">{{ form.course_number.label }}</label>
+                                <input type="number" name="{{ form.course_number.name }}" id="{{ form.course_number.id_for_label }}" class="form-control {% if form.course_number.errors %}is-invalid{% endif %}" value="{{ form.course_number.value|default:'' }}">
+                                {% if form.course_number.errors %}<div class="invalid-feedback">{{ form.course_number.errors|striptags }}</div>{% endif %}
+                             </div>
+                        </div>
+                    </div>
+
+                    <div id="teacher-staff-fields" class="profile-section border p-3 rounded mb-3" style="display: none;">
+                        <h5>Данные преподавателя/сотрудника</h5>
+                        <div class="row">
+                             <div class="col-md-6 mb-3">
+                                <label for="{{ form.department.id_for_label }}" class="form-label">{{ form.department.label }}</label>
+                                <input type="text" name="{{ form.department.name }}" id="{{ form.department.id_for_label }}" class="form-control {% if form.department.errors %}is-invalid{% endif %}" value="{{ form.department.value|default:'' }}">
+                                {% if form.department.errors %}<div class="invalid-feedback">{{ form.department.errors|striptags }}</div>{% endif %}
+                             </div>
+                             <div class="col-md-6 mb-3">
+                                 <label for="{{ form.position.id_for_label }}" class="form-label">{{ form.position.label }}</label>
+                                <input type="text" name="{{ form.position.name }}" id="{{ form.position.id_for_label }}" class="form-control {% if form.position.errors %}is-invalid{% endif %}" value="{{ form.position.value|default:'' }}">
+                                {% if form.position.errors %}<div class="invalid-feedback">{{ form.position.errors|striptags }}</div>{% endif %}
+                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.academic_degree.id_for_label }}" class="form-label">{{ form.academic_degree.label }}</label>
+                                <input type="text" name="{{ form.academic_degree.name }}" id="{{ form.academic_degree.id_for_label }}" class="form-control {% if form.academic_degree.errors %}is-invalid{% endif %}" value="{{ form.academic_degree.value|default:'' }}">
+                                {% if form.academic_degree.errors %}<div class="invalid-feedback">{{ form.academic_degree.errors|striptags }}</div>{% endif %}
+                             </div>
+                             <div class="col-md-6 mb-3">
+                                 <label for="{{ form.academic_title.id_for_label }}" class="form-label">{{ form.academic_title.label }}</label>
+                                <input type="text" name="{{ form.academic_title.name }}" id="{{ form.academic_title.id_for_label }}" class="form-control {% if form.academic_title.errors %}is-invalid{% endif %}" value="{{ form.academic_title.value|default:'' }}">
+                                {% if form.academic_title.errors %}<div class="invalid-feedback">{{ form.academic_title.errors|striptags }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Зарегистрироваться</button>
+                    </div>
+                </form>
+                <hr>
+                 <div class="text-center">
+                    <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const profileSelect = document.getElementById('id_profile_type');
+    const studentFields = document.getElementById('student-fields');
+    const teacherFields = document.getElementById('teacher-staff-fields');
+
+    function toggleFields() {
+        const selectedType = profileSelect.value;
+        studentFields.style.display = (selectedType === 'student') ? 'block' : 'none';
+        teacherFields.style.display = (selectedType === 'teacher' || selectedType === 'staff') ? 'block' : 'none';
+    }
+
+    profileSelect.addEventListener('change', toggleFields);
+    // Initial call to set visibility based on default selection
+    toggleFields(); 
+</script>
+
+{% endblock %} 

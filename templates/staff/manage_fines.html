@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление штрафами{% endblock %}
+
+{% block content %}
+<h2>Неоплаченные штрафы</h2>
+
+{# Add Search and Filter Form #}
+<form method="get" action="" style="margin-bottom: 20px;">
+    <input type="text" name="search" placeholder="Поиск по читателю, книге, ID выдачи..." value="{{ search_query|default:'' }}" style="width: 300px; padding: 8px;">
+    <select name="reason" style="padding: 8px;">
+        <option value="" {% if not reason_filter %}selected{% endif %}>Все причины</option>
+        {% for value, display in reason_choices %}
+            <option value="{{ value }}" {% if reason_filter == value %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" style="padding: 8px 15px;">Найти</button>
+</form>
+
+{% if fines %}
+    {# Apply Bootstrap table classes #}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Штрафа</th>
+                    <th>Читатель</th>
+                    <th>Причина</th>
+                    <th>Выдача (если применимо)</th>
+                    <th>Книга (если применимо)</th>
+                    <th>Сумма</th>
+                    <th>Дата назначения</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fine in fines %}
+                <tr>
+                    <td>{{ fine.fine_id }}</td>
+                    <td>
+                        {% if fine.reader.user %}
+                            {{ fine.reader.user.get_full_name|default:fine.reader.user.username }}
+                        {% else %}
+                            {{ fine.reader.first_name }} {{ fine.reader.last_name }}
+                        {% endif %}
+                        ({{ fine.reader.library_card_number }})
+                    </td>
+                    <td>{{ fine.get_fine_reason_display }}</td>
+                    <td>{{ fine.loan.loan_id|default:"-" }}</td>
+                    <td>{{ fine.loan.copy.book.book_title|default:"-" }}</td>
+                    <td>{{ fine.fine_amount }}</td>
+                    <td>{{ fine.fine_date }}</td>
+                    <td>
+                        <form action="{% url 'mark_fine_paid' fine.fine_id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            {# Apply Bootstrap button classes #}
+                            <button type="submit" class="btn btn-success btn-sm">Отметить как оплаченный</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>Нет неоплаченных штрафов, соответствующих вашему запросу.</p>
+{% endif %}
+
+{% endblock %} 

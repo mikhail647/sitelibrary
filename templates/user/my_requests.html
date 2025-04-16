@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои запросы на книги{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Мои запросы на книги</h2>
+
+<div class="mb-3">
+    <a href="{% url 'user_request_book' %}" class="btn btn-primary">Создать новый запрос</a>
+</div>
+
+{% if requests %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Запроса</th>
+                    <th>Книга</th>
+                    <th>Желаемый пункт</th>
+                    <th>Дата запроса</th>
+                    <th>Статус</th>
+                    <th>Выдача №</th>
+                    <th>Примечания</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.request_id }}</td>
+                    <td>{{ req.book.book_title }}</td>
+                    <td>{{ req.requested_location.location_name }}</td>
+                    <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ req.get_status_display }}</td>
+                    <td>{{ req.loan.loan_id|default:"-" }}</td>
+                    <td>{{ req.notes|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>У вас еще нет запросов на книги.</p>
+{% endif %}
+
+{% endblock %} 

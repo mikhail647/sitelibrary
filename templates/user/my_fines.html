@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои штрафы{% endblock %}
+
+{% block content %}
+<h2>Мои неоплаченные штрафы</h2>
+
+{# Add check for reader profile existence, passed from view #}
+{% if reader %}
+    {% if fines %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Штрафа</th>
+                    <th>Причина</th>
+                    <th>Книга (если применимо)</th>
+                    <th>Сумма</th>
+                    <th>Дата назначения</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fine in fines %}
+                <tr>
+                    <td>{{ fine.fine_id }}</td>
+                    <td>{{ fine.get_fine_reason_display }}</td> {# Use get_fine_reason_display #}
+                    <td>{{ fine.loan.copy.book.book_title|default:"-" }}</td> {# Use book_title #}
+                    <td>{{ fine.fine_amount }}</td> {# Use fine_amount #}
+                    <td>{{ fine.fine_date }}</td> {# Use fine_date #}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p style="margin-top: 15px;">Для оплаты штрафов обратитесь к сотруднику библиотеки.</p>
+    {% else %}
+        <p>У вас нет неоплаченных штрафов.</p>
+    {% endif %}
+{% else %}
+    <p>Ваш профиль читателя не найден. Невозможно отобразить штрафы.</p>
+{% endif %}
+
+{% endblock %} 

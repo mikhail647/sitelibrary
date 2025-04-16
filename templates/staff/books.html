@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Управление книгами</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Год</th>
+            <th>Доступно на абонементе</th>
+            <th>В читальном зале</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.year }}</td>
+            <td>{{ book.quantity_loan }}</td>
+            <td>{{ book.quantity_reading_room }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

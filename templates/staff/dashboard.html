@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель персонала{% endblock %}
+
+{% block content %}
+<h2>Панель персонала</h2>
+
+<p>Добро пожаловать, {{ user.get_full_name|default:user.username }}!</p>
+
+{# Quick Stats/Summary Card #}
+<div class="card mb-4">
+    <div class="card-header">Сводка</div>
+    <div class="card-body">
+        <ul>
+            <li><a href="{% url 'staff_active_loans' %}">Активные выдачи:</a> {{ active_loans_count }}</li>
+            <li>Просроченные выдачи: {{ overdue_loans_count }}</li>
+            <li>Доступно экземпляров для выдачи: {{ available_copies_count }}</li>
+            <li><a href="{% url 'manage_fines' %}">Неоплаченные штрафы:</a> {{ pending_fines_count }}</li>
+            {# Add link to pending requests count if desired #}
+            {# <li><a href="{% url 'staff_manage_requests' %}">Ожидающие запросы на книги:</a> {{ pending_requests_count|default:0 }}</li> #}
+            {# <li><a href="{% url 'staff_manage_ill_requests' %}">Ожидающие запросы МБА:</a> {{ pending_ill_requests_count|default:0 }}</li> #}
+        </ul>
+    </div>
+</div>
+
+{# Actions Card #}
+<div class="card">
+    <div class="card-header">Действия</div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'staff_issue_book' %}">Выдать книгу</a></li>
+            <li class="list-group-item"><a href="{% url 'staff_active_loans' %}">Просмотреть/Вернуть активные выдачи</a></li>
+            <li class="list-group-item"><a href="{% url 'staff_manage_requests' %}">Управление запросами на книги</a></li> 
+            <li class="list-group-item"><a href="{% url 'staff_manage_ill_requests' %}">Управление запросами МБА</a></li>
+            <li class="list-group-item"><a href="{% url 'manage_fines' %}">Управление штрафами</a></li>
+            {# Add button/form for checking suspensions #}
+            <li class="list-group-item">
+                <form action="{% url 'staff_check_suspensions' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-sm">Проверить и снять истекшие приостановки</button>
+                </form>
+            </li>
+            {# Можно добавить ссылки на управление читателями, книгами, если нужно #}
+             {# <li class="list-group-item"><a href="/admin/library/libraryreader/">Управление читателями (Admin)</a></li> #}
+             {# <li class="list-group-item"><a href="/admin/library/bookcatalog/">Управление каталогом (Admin)</a></li> #}
+        </ul>
+    </div>
+</div>
+
+{% endblock %} 

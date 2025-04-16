@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление запросами на книги{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Запросы на книги (Ожидают подтверждения)</h2>
+
+{# Location Filter Form #}
+<form method="get" action="" class="mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-auto">
+            <label for="location-filter" class="col-form-label">Фильтр по пункту выдачи:</label>
+        </div>
+        <div class="col-auto">
+            <select name="location" id="location-filter" class="form-select form-select-sm">
+                <option value="">Все пункты</option>
+                {% for location in locations %}
+                    <option value="{{ location.location_id }}" {% if location_filter == location.location_id|stringformat:"s" %}selected{% endif %}>{{ location.location_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-secondary btn-sm">Фильтровать</button>
+        </div>
+    </div>
+</form>
+
+{% if requests %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Запроса</th>
+                    <th>Пользователь</th>
+                    <th>Книга</th>
+                    <th>Желаемый пункт</th>
+                    <th>Дата запроса</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.request_id }}</td>
+                    <td>{{ req.user.username }}</td>
+                    <td>{{ req.book.book_title }}</td>
+                    <td>{{ req.requested_location.location_name }}</td>
+                    <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <form action="{% url 'staff_approve_request' req.request_id %}" method="post" class="d-inline me-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">Одобрить</button>
+                        </form>
+                        {# Basic rejection - could be improved with a modal for notes #}
+                        <form action="{% url 'staff_reject_request' req.request_id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Отклонить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>Нет ожидающих запросов, соответствующих вашему фильтру.</p>
+{% endif %}
+
+{% endblock %} 
