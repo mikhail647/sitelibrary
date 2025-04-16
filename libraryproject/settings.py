@@ -113,10 +113,11 @@ WSGI_APPLICATION = 'libraryproject.wsgi.application'
 
 # Example for using dj-database-url (install it: pip install dj-database-url)
 # Needs environment variable DATABASE_URL set in production
-# import dj_database_url
-# DATABASES = {
-#     'default': dj_database_url.config(default=f'mysql://root:2205@127.0.0.1:3306/library_db?charset=utf8mb4')
-# }
+import dj_database_url
+DATABASES = {
+    # dj_database_url будет искать переменную окружения DATABASE_URL
+    'default': dj_database_url.config()
+}
 # # Add your actual production DATABASE_URL from PythonAnywhere/Heroku/etc.
 # # DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True) # Example for Heroku Postgres
 
