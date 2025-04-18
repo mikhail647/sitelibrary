@@ -452,22 +452,28 @@ span.select2-container {
     perspective: 150px;
     background-color: #f8f9fa; /* Color of the back cover/last page */
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    border-radius: 2px 5px 5px 2px;
+    border-radius: 5px 2px 2px 5px; /* Adjusted border radius */
 }
 
 .book-loader-page {
     /* Represents a turning page */
     position: absolute;
-    left: 0;
+    /* Change position to right */
+    right: 0;
     top: 0;
     width: 50%; /* Half the book width */
     height: 100%;
-    background: #fff; /* Page color */
-    border-right: 1px solid #ced4da; /* Inner page edge */
-    transform-origin: left center;
+    /* Page color and faint text lines */
+    background-color: #fff;
+    background-image: linear-gradient(to bottom, #e0e0e0 1px, transparent 1px, transparent 5px);
+    background-size: 100% 6px; /* Line height */
+    /* Change border to left */
+    border-left: 1px solid #ced4da; /* Inner page edge */
+    /* Change transform origin to right */
+    transform-origin: right center;
     animation: page-turn 1.2s infinite cubic-bezier(.6,-0.3,.4,1.2);
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px; /* Adjusted border radius */
+    border-bottom-right-radius: 2px;
 }
 
 /* Stagger the animation for multiple pages */
@@ -492,7 +498,8 @@ span.select2-container {
         z-index: 1; /* Goes behind mid-turn */
     }
     100% {
-        transform: rotateY(-180deg);
+        /* Change rotation direction */
+        transform: rotateY(180deg);
         z-index: 1; /* Stays behind */
     }
 }
