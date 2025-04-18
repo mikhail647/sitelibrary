@@ -467,183 +467,182 @@ span.select2-container {
     transform: rotateX(10deg); /* Небольшой наклон для лучшего обзора */
 }
 
-/* Добавляем контейнер для всей 3D-модели книги */
+/* Обложка (верхняя) */
 .book-loader:before {
     content: "";
     position: absolute;
     width: 100%;
     height: 100%;
-    transform-style: preserve-3d;
-    transform: rotateY(-30deg) translateZ(0px);
-    animation: book-float 3s ease-in-out infinite;
-}
-
-/* Передняя обложка */
-.book-loader:after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
     top: 0;
+    left: 0;
     background: linear-gradient(45deg, #343a40 0%, #495057 80%, #6c757d 100%);
     border-radius: 3px 7px 7px 3px;
     box-shadow: 
         5px 5px 15px rgba(0, 0, 0, 0.2),
         inset 0 0 5px rgba(255, 255, 255, 0.1);
     transform-style: preserve-3d;
-    transform: rotateY(-30deg) translateZ(7px);
+    transform: rotateY(-25deg) translateZ(10px);
     backface-visibility: hidden;
-    z-index: 10;
+    z-index: 20;
+    animation: book-float 3s ease-in-out infinite;
 }
 
-/* Задняя обложка */
-.book-loader-page:nth-child(1) {
+/* Титульный декор на обложке */
+.book-loader:before:after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+/* Задняя обложка (основа) */
+.book-loader:after {
+    content: "";
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    background: linear-gradient(45deg, #343a40 0%, #454d54 100%);
+    background: linear-gradient(45deg, #2d3339 0%, #3e464e 100%);
     border-radius: 3px 7px 7px 3px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    transform: rotateY(-30deg) translateZ(-7px);
+    transform: rotateY(-25deg) translateZ(-10px);
     backface-visibility: hidden;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
     z-index: 0;
-    /* Декор на обложке */
-    background-image: 
-        linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.03) 100%);
-    background-size: 40px 100%;
-    background-position: center;
+    animation: book-float 3s ease-in-out infinite;
 }
 
-/* Корешок книги */
-.book-loader-page:nth-child(2) {
+/* Корешок книги - добавим абсолютно позиционированный элемент */
+.book-loader .book-spine {
+    content: "";
     position: absolute;
-    width: 14px; /* Толщина книги */
+    width: 20px; /* Толщина книги */
     height: 100%;
-    left: -7px;
+    left: 0;
     top: 0;
     background: linear-gradient(to right, #262b2f, #343a40);
-    transform: rotateY(-30deg) rotateY(90deg) translateZ(7px);
-    box-shadow: 
-        inset -1px 0 3px rgba(0, 0, 0, 0.2), 
-        5px 0 15px rgba(0, 0, 0, 0.2);
-    border-radius: 2px 0 0 2px;
-    z-index: 20;
+    border-radius: 3px 0 0 3px;
+    transform: rotateY(-25deg) rotateY(90deg) translateZ(10px);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    animation: book-float 3s ease-in-out infinite;
     /* Декор корешка */
     background-image: 
         linear-gradient(to bottom, 
-            rgba(255,255,255,0) 0%, 
+            rgba(255,255,255,0) 5%, 
             rgba(255,255,255,0.1) 50%, 
-            rgba(255,255,255,0) 100%);
-    background-size: 100% 40px;
-    background-position: center;
-    background-repeat: no-repeat;
+            rgba(255,255,255,0) 95%);
 }
 
-/* Создаем стопку страниц внутри книги */
-.book-loader-page:nth-child(3) {
+/* Перелистывающиеся страницы - используем существующие элементы */
+.book-loader-page {
     position: absolute;
-    width: 94%;
+    width: 95%;
     height: 96%;
     top: 2%;
-    left: 3%;
-    transform: rotateY(-30deg) translateZ(0);
-    background-color: #f2f2f2;
-    border-radius: 0 5px 5px 0;
-    z-index: 5;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    /* Имитация текста */
-    background-image: 
-        linear-gradient(to bottom, transparent 0, transparent 5px, rgba(0,0,0,0.02) 5px, rgba(0,0,0,0.02) 6px),
-        linear-gradient(to bottom, transparent 0, transparent 12px, rgba(0,0,0,0.03) 12px, rgba(0,0,0,0.03) 13px),
-        linear-gradient(to bottom, transparent 0, transparent 19px, rgba(0,0,0,0.03) 19px, rgba(0,0,0,0.03) 20px),
-        linear-gradient(to bottom, transparent 0, transparent 26px, rgba(0,0,0,0.03) 26px, rgba(0,0,0,0.03) 27px);
-    background-size: 100% 33px;
-    background-repeat: repeat-y;
-}
-
-/* Динамические страницы, которые перелистываются */
-.book-page {
-    position: absolute;
-    width: 90%;
-    height: 96%;
-    top: 2%;
-    right: 3%;
+    right: 2%;
     background-color: #fff;
-    border-radius: 0 3px 3px 0;
+    border-radius: 0 5px 5px 0;
     transform-origin: left center;
-    transform: rotateY(-30deg) translateZ(3px);
-    box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.1),
-        -1px 0 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transform-style: preserve-3d;
-    z-index: 8;
-    backface-visibility: hidden;
+    animation: book-float 3s ease-in-out infinite;
+    overflow: hidden;
     
-    /* Создаем невидимые страницы для анимации */
-    opacity: 0;
-    animation: page-animation 2.5s infinite ease-in-out;
-}
-
-/* Симуляция линий текста на странице */
-.book-page:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    /* Симуляция текста на страницах */
     background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 70%, transparent 70%),
-        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 60%, transparent 60%),
         linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 85%, transparent 85%),
         linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 65%, transparent 65%),
-        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 75%, transparent 75%);
+        linear-gradient(90deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 70%, transparent 70%);
     background-size: 100% 1px;
     background-position: 
-        15px 30px,
-        15px 50px,
-        15px 70px,
-        15px 90px,
-        15px 110px;
+        20px 30px,
+        20px 50px,
+        20px 70px,
+        20px 90px,
+        20px 110px;
     background-repeat: no-repeat;
 }
 
-/* Создаем 5 невидимых страниц для анимации */
-.book-page:nth-child(1) { animation-delay: 0s; }
-.book-page:nth-child(2) { animation-delay: 0.5s; }
-.book-page:nth-child(3) { animation-delay: 1s; }
-.book-page:nth-child(4) { animation-delay: 1.5s; }
-.book-page:nth-child(5) { animation-delay: 2s; }
-
-/* Анимация парения книги */
-@keyframes book-float {
-    0%, 100% { transform: rotateY(-30deg) translateZ(0) translateY(0); }
-    50% { transform: rotateY(-30deg) translateZ(0) translateY(-5px); }
+/* Первая страница (дальняя от нас) */
+.book-loader-page:nth-child(1) {
+    transform: rotateY(-25deg) translateZ(1px);
+    animation: flip-page-1 3s infinite ease-in-out;
+    z-index: 3;
 }
 
-/* Анимация перелистывания страницы */
-@keyframes page-animation {
-    0%, 20% {
-        opacity: 1;
-        transform: rotateY(-30deg) rotateY(0deg);
-        z-index: 8;
+/* Вторая страница (средняя) */
+.book-loader-page:nth-child(2) {
+    transform: rotateY(-25deg) translateZ(5px);
+    animation: flip-page-2 3s infinite ease-in-out;
+    z-index: 4;
+}
+
+/* Третья страница (ближняя к нам) */
+.book-loader-page:nth-child(3) {
+    transform: rotateY(-25deg) translateZ(9px);
+    animation: flip-page-3 3s infinite ease-in-out;
+    z-index: 5;
+}
+
+/* Анимация плавающей книги */
+@keyframes book-float {
+    0%, 100% { transform: translateY(0) rotateY(-25deg) translateZ(var(--translateZ, 0)); }
+    50% { transform: translateY(-5px) rotateY(-25deg) translateZ(var(--translateZ, 0)); }
+}
+
+/* Анимации страниц с разными задержками */
+@keyframes flip-page-1 {
+    0%, 30% {
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(1px);
+        z-index: 3;
     }
-    40% {
-        opacity: 1;
-        transform: rotateY(-30deg) rotateY(-120deg);
-        z-index: 9;
-        box-shadow: 
-            0 15px 5px rgba(0, 0, 0, 0.1),
-            0 10px 15px rgba(0, 0, 0, 0.05);
+    40%, 45% {
+        transform: rotateY(-25deg) rotateY(-70deg) translateZ(1px);
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 15;
     }
-    60%, 100% {
-        opacity: 0;
-        transform: rotateY(-30deg) rotateY(-180deg);
-        z-index: 7;
+    55%, 100% {
+        transform: rotateY(-25deg) rotateY(-180deg) translateZ(1px);
+        z-index: 1;
+    }
+}
+
+@keyframes flip-page-2 {
+    0%, 45% {
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(5px);
+        z-index: 4;
+    }
+    55%, 60% {
+        transform: rotateY(-25deg) rotateY(-70deg) translateZ(5px);
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 16;
+    }
+    70%, 100% {
+        transform: rotateY(-25deg) rotateY(-180deg) translateZ(5px);
+        z-index: 2;
+    }
+}
+
+@keyframes flip-page-3 {
+    0%, 60% {
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(9px);
+        z-index: 5;
+    }
+    70%, 75% {
+        transform: rotateY(-25deg) rotateY(-70deg) translateZ(9px);
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 17;
+    }
+    85%, 100% {
+        transform: rotateY(-25deg) rotateY(-180deg) translateZ(9px);
+        z-index: 3;
     }
 }
 
@@ -662,6 +661,13 @@ span.select2-container {
     color: #6c757d;
     margin: 0 8px;
 }
+
+/* Добавим скрытый корешок через JavaScript, если его нет в HTML */
+@keyframes create-spine {
+    to { opacity: 1; }
+}
+
+/* --- Остальные стили сохраняем --- */
 
 /* Keep existing form fixes */
 .select2-container {
