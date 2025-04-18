@@ -33,15 +33,17 @@ def generate_report(request):
     filename = f"library_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
-    # --- Font Setup for Cyrillic using embedded TTF + standard variants ---
+    # --- Font Setup for Cyrillic using embedded Times New Roman TTFs ---
     font_name = 'TimesNewRomanPSMT' # Custom name for your regular TTF
     font_name_italic = 'TimesNewRomanPSMT-Italic' # Custom name for your italic TTF
-    font_name_bold = 'Times-Bold' # Standard PDF font name
-    font_name_bold_italic = 'Times-BoldItalic' # Standard PDF font name
+    font_name_bold = 'TimesNewRomanPSMT-Bold' # Custom name for your bold TTF
+    # Assume BoldItalic maps to Bold for now, unless you have a specific TTF
+    font_name_bold_italic = 'TimesNewRomanPSMT-Bold' 
 
     # Paths to your uploaded TTF files
     font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanpsmt.ttf')
     font_path_italic = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanps_italicmt.ttf')
+    font_path_bold = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesbd.ttf')
 
     # --- DEBUGGING --- 
     print(f"[PDF Report] Attempting to load font from: {font_path}")
@@ -50,27 +52,32 @@ def generate_report(request):
     print(f"[PDF Report] Attempting to load italic font from: {font_path_italic}")
     font_italic_exists = os.path.exists(font_path_italic)
     print(f"[PDF Report] Italic font file exists at path: {font_italic_exists}")
+    print(f"[PDF Report] Attempting to load bold font from: {font_path_bold}")
+    font_bold_exists = os.path.exists(font_path_bold)
+    print(f"[PDF Report] Bold font file exists at path: {font_bold_exists}")
     # --- END DEBUGGING ---
 
     registered_successfully = False
     try:
-        # Check if the regular AND italic TTF files exist
-        if font_exists and font_italic_exists:
+        # Check if all required TTF files exist
+        if font_exists and font_italic_exists and font_bold_exists:
             # Register the TTF files you provided
             pdfmetrics.registerFont(TTFont(font_name, font_path))
             pdfmetrics.registerFont(TTFont(font_name_italic, font_path_italic))
+            pdfmetrics.registerFont(TTFont(font_name_bold, font_path_bold))
 
-            # Map the base font name to the variants
+            # Map the base font name to the specific TTF variants
             addMapping(font_name, 0, 0, font_name) # Normal -> Your regular TTF
             addMapping(font_name, 0, 1, font_name_italic) # Italic -> Your italic TTF
-            addMapping(font_name, 1, 0, font_name_bold) # Bold -> Standard Times-Bold
-            addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Standard Times-BoldItalic
+            addMapping(font_name, 1, 0, font_name_bold) # Bold -> Your bold TTF
+            addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Your bold TTF (as fallback)
             registered_successfully = True
-            print(f"[PDF Report] Successfully registered {font_name} and {font_name_italic} fonts")
+            print(f"[PDF Report] Successfully registered {font_name}, {font_name_italic}, and {font_name_bold} fonts")
         else:
             missing = []
             if not font_exists: missing.append(font_path)
             if not font_italic_exists: missing.append(font_path_italic)
+            if not font_bold_exists: missing.append(font_path_bold)
             print(f"[PDF Report] Font file(s) not found: {missing}. Falling back to Helvetica.")
             # No error raise here, fallback will happen
 
@@ -92,7 +99,7 @@ def generate_report(request):
 
     # --- Styles using the registered font (TimesNewRomanPSMT or Helvetica fallback) ---
     styles = getSampleStyleSheet()
-    # Use the standard bold name for headers, your TTF name for normal text
+    # Use the specific bold name for headers, your regular TTF name for normal text
     styles['h1'].fontName = font_name_bold
     styles['h2'].fontName = font_name_bold
     styles['h3'].fontName = font_name_bold
