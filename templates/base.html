@@ -142,5 +142,69 @@
 
     {% block extra_js %}{% endblock %}
 
+    {# Loading Indicator JavaScript - RESTORED #}
+    <script>
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        function showLoader() {
+            if (loadingOverlay) {
+                console.log("Showing loader..."); // Debug log
+                loadingOverlay.classList.add('loading-active');
+            }
+        }
+
+        function hideLoader() {
+             if (loadingOverlay) {
+                console.log("Hiding loader..."); // Debug log
+                loadingOverlay.classList.remove('loading-active');
+            }
+        }
+
+        // Select links that navigate away and aren't special (like dropdowns or fragments)
+        document.querySelectorAll('a.nav-link:not([data-bs-toggle="dropdown"]):not(.no-loader), a.btn:not(.no-loader):not([data-bs-toggle]), .table a:not([data-bs-toggle]):not(.no-loader), a.navbar-brand:not(.no-loader)').forEach(link => {
+            link.addEventListener('click', function(event) {
+                 // Check if it navigates away (no target=_blank, not a # link)
+                if (!link.target || link.target === '_self') {
+                   if (!link.href.startsWith('#') && link.getAttribute('href') && link.getAttribute('href') !== '#') {
+                       // Use setTimeout to allow default action or JS redirects to occur first
+                       // and give browser time to start navigation before showing loader.
+                       console.log("Link clicked, scheduling showLoader for:", link.href); // Debug log
+                       setTimeout(showLoader, 50); 
+                   }
+                }
+            });
+        });
+
+        // Select forms that submit (excluding logout form if needed)
+        document.querySelectorAll('form:not(#logout-form)').forEach(form => {
+            form.addEventListener('submit', function() {
+                 console.log("Form submitted, scheduling showLoader for:", form.action); // Debug log
+                 setTimeout(showLoader, 50); 
+            });
+        });
+
+        // Hide loader if user navigates back/forward or page fails to load
+        window.addEventListener('pageshow', (event) => {
+            console.log("Pageshow event fired"); // Debug log
+            // The persisted property is true if the page is from the bfcache
+             if (event.persisted) {
+                 console.log("Page was from bfcache, hiding loader immediately.");
+                 hideLoader(); 
+            } else {
+                 // Might need slight delay on pageshow if not from bfcache,
+                 // but often hideLoader should be called quickly.
+                 // For now, let's keep it immediate.
+                 hideLoader();
+            }
+        });
+        
+        // Initial hide in case it was somehow visible on load
+        // hideLoader(); 
+        // Let's remove the initial hideLoader() call, as it should be hidden by default CSS.
+        // It might interfere with the pageshow logic if called too early.
+        console.log("Initial page load, overlay should be hidden by CSS.");
+
+    </script>
+
 </body>
 </html>
