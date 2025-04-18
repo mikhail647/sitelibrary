@@ -789,123 +789,179 @@ span.select2-container {
 /* ===================================== */
 
 /* Общие улучшения для контейнера панели */
-.staff-dashboard-container, /* Примерный класс контейнера */
-.staff-page-container /* Общий класс для страниц персонала */
-{
-    padding-top: 1.5rem; 
+.staff-dashboard-container,
+.staff-page-container {
+    padding-top: 1.5rem;
+    /* Можно добавить фоновый цвет для всей области персонала, если нужно */
+    /* background-color: #f8f9fa; */ 
 }
 
-/* Карточки на панели персонала */
-.staff-card {
-    border: 1px solid #dee2e6; 
-    border-radius: 0.5rem; /* Более скругленные углы */
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Легкая тень */
-    transition: box-shadow 0.2s ease-in-out;
-}
-
-.staff-card:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Тень при наведении */
-}
-
-/* Заголовок карточки персонала (используем темный) */
-.staff-card .card-header {
-    background-color: #343a40; /* Темно-серый фон */
-    color: #fff; /* Белый текст */
-    border-bottom: 1px solid #495057;
+/* Основной заголовок страниц персонала */
+.staff-page-title {
+    font-size: 1.9rem;
     font-weight: 500;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    padding: 0.8rem 1.2rem;
+    color: #343a40;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #dee2e6;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
 }
-
-.staff-card .card-header i {
-    font-size: 1.1em;
+.staff-page-title i {
+    color: #495057;
     opacity: 0.8;
 }
 
-.staff-card .card-body {
-    padding: 1.5rem; /* Больше отступов внутри карточки */
+/* Улучшение карточек на панели персонала */
+.staff-card {
+    border: none; /* Убираем стандартную рамку, полагаемся на тень */
+    border-radius: 0.5rem; 
+    margin-bottom: 1.8rem; /* Больше отступ */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06); 
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    background-color: #fff;
 }
 
-/* Карточки со статистикой */
+.staff-card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+}
+
+/* Заголовок карточки персонала (темный) */
+.staff-card .card-header {
+    background-color: #343a40; 
+    color: #fff; 
+    border-bottom: none; /* Убираем границу под шапкой */
+    font-weight: 500;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    padding: 1rem 1.5rem; /* Увеличим отступы */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Для кнопок или иконок справа */
+    gap: 0.6rem;
+}
+
+.staff-card .card-header i.header-icon {
+    font-size: 1.2em;
+    opacity: 0.7;
+    margin-right: 0.5rem; /* Отступ справа от иконки */
+}
+
+.staff-card .card-body {
+    padding: 1.8rem; /* Еще больше отступов внутри */
+}
+
+/* Карточки со статистикой - улучшенный вид */
 .stat-card {
     text-align: center;
     padding: 1.5rem 1rem;
+    background-color: #f8f9fa; /* Светлый фон для стат. карточек */
+    border-radius: 0.4rem;
+    border: 1px solid #e9ecef;
+    margin-bottom: 1rem;
 }
 
 .stat-card .stat-number {
-    font-size: 2.5rem;
-    font-weight: 500;
-    color: #343a40;
+    font-size: 2.2rem;
+    font-weight: 600; /* Жирнее */
+    color: #0d6efd; /* Синий акцент */
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
 }
 
 .stat-card .stat-label {
-    font-size: 0.95rem;
-    color: #6c757d;
+    font-size: 0.9rem;
+    color: #495057; 
     display: block;
 }
 
-/* Кнопки действий на панели персонала */
-.staff-actions .btn {
-    margin-top: 0.5rem;
-    margin-right: 0.5rem;
-}
 
-/* Улучшение кнопок в таблицах */
-.table .btn-action-icon {
-    padding: 0.3rem 0.6rem; /* Компактнее */
-    font-size: 0.9em;
-    line-height: 1; /* Убираем лишнюю высоту */
-    min-height: auto; /* Сбрасываем мин. высоту */
-}
-
-.table .btn-action-icon i {
-    margin-right: 0; /* Убираем отступ иконки */
-    font-size: 1.1em; /* Делаем иконку чуть больше */
-}
-
-/* Разделители между секциями (опционально) */
-.staff-section-divider {
-    border-top: 1px solid #e9ecef;
-    margin-top: 2rem;
+/* Таблицы на страницах персонала */
+.staff-table-wrapper {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    border-radius: 0.4rem;
+    overflow: hidden; /* Обязательно для скругления */
+    border: 1px solid #dee2e6;
     margin-bottom: 2rem;
 }
 
-/* Стили для форм на страницах персонала (если нужны специфичные) */
-.staff-form .form-label {
+.staff-table-wrapper .table {
+    margin-bottom: 0; /* Убираем лишний отступ у таблицы внутри обертки */
+    border: none; /* Убираем свою рамку у таблицы */
+}
+
+.staff-table-wrapper thead {
+    background-color: #e9ecef;
+    border-bottom: 2px solid #adb5bd;
+}
+
+.staff-table-wrapper th {
+    padding: 0.9rem 1.2rem;
     font-weight: 500;
+    white-space: nowrap; /* Запрещаем перенос заголовков */
 }
 
-/* Улучшение внешнего вида фильтров (если используются формы) */
-.filter-form {
-    background-color: #f8f9fa; /* Светлый фон для области фильтров */
-    padding: 1rem 1.5rem;
+.staff-table-wrapper td {
+    padding: 0.8rem 1.2rem;
+    vertical-align: middle;
+    border-top: 1px solid #f1f1f1;
+}
+
+/* Добавляем зебру для таблиц персонала */
+.staff-table-wrapper tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.staff-table-wrapper tbody tr:hover {
+    background-color: #f1f5f9; /* Цвет при наведении */
+}
+
+/* Кнопки действий в таблицах */
+.staff-table-wrapper .actions a,
+.staff-table-wrapper .actions button {
+    margin-right: 0.4rem;
+    margin-bottom: 0.2rem; /* Отступ снизу для мобильных */
+}
+
+.staff-table-wrapper .actions a:last-child,
+.staff-table-wrapper .actions button:last-child {
+    margin-right: 0;
+}
+
+/* Стилизация форм редактирования/создания */
+.staff-form {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 0.3rem;
+    border-radius: 0.4rem;
+}
+
+.staff-form h4 {
     margin-bottom: 1.5rem;
+    font-weight: 500;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
 }
 
-.filter-form .form-label {
-    margin-bottom: 0.25rem; /* Меньше отступ под меткой */
-    font-size: 0.9em;
-    color: #495057;
+.staff-form .form-group,
+.staff-form .mb-3 { /* Увеличим отступ между полями */
+    margin-bottom: 1.5rem !important;
 }
 
-.filter-form .row > div {
-    padding-bottom: 0.5rem; /* Отступы между полями фильтра */
+.staff-form .form-actions {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+    text-align: right;
 }
 
-.filter-form .btn {
-    margin-top: 0.5rem; /* Отступ для кнопки фильтра */
+.staff-form .form-actions .btn {
+    min-width: 100px; /* Минимальная ширина кнопок */
 }
 
-/* --- End Общие улучшения UI --- */
+/* --- Общие стили и стили читателя оставляем без изменений --- */
 
 /* ===================================== */
 /* ===== Улучшения UI для Читателя ===== */
