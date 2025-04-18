@@ -43,10 +43,16 @@ def generate_report(request):
     font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanpsmt.ttf')
     # No separate bold path needed if using standard Times-Bold
 
-    registered_successfully = False
+    # --- DEBUGGING --- 
+    print(f"[PDF Report] Attempting to load font from: {font_path}")
+    font_exists = os.path.exists(font_path)
+    print(f"[PDF Report] Font file exists at path: {font_exists}")
+    # --- END DEBUGGING ---
+
+    # registered_successfully = False # Temporarily removed for debugging
     try:
         # Check if the base TTF file exists
-        if os.path.exists(font_path):
+        if font_exists: # Use the checked variable
             # Register only the base TTF file you provided
             pdfmetrics.registerFont(TTFont(font_name, font_path))
 
@@ -55,26 +61,31 @@ def generate_report(request):
             addMapping(font_name, 1, 0, font_name_bold) # Bold -> Times-Bold (standard)
             addMapping(font_name, 0, 1, font_name_italic) # Italic -> Times-Italic (standard)
             addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Times-BoldItalic (standard)
-            registered_successfully = True
-            print(f"Successfully registered {font_name} font from {font_path}")
+            # registered_successfully = True # Temporarily removed for debugging
+            print(f"[PDF Report] Successfully registered {font_name} font from {font_path}")
         else:
-            print(f"Warning: Font file not found at {font_path}. Falling back to Helvetica.")
+            print(f"[PDF Report] Font file not found at {font_path}. Cannot generate PDF with correct font.")
+            # Raise an error to show clearly font wasn't found
+            raise FileNotFoundError(f"Required font file not found: {font_path}")
 
     except Exception as e:
-        print(f"Warning: Could not register {font_name} font ({e}). Falling back to Helvetica.")
+        print(f"[PDF Report] Error registering or mapping {font_name} font ({e}).")
+        # Re-raise the exception to get a full traceback in error log
+        raise e
 
-    # Fallback if TimesNewRomanPSMT registration failed
-    if not registered_successfully:
-        font_name = 'Helvetica'
-        font_name_bold = 'Helvetica-Bold'
-        # Ensure base Helvetica styles are used
-        addMapping('Helvetica', 0, 0, 'Helvetica')
-        addMapping('Helvetica', 1, 0, 'Helvetica-Bold')
-        addMapping('Helvetica', 0, 1, 'Helvetica-Oblique')
-        addMapping('Helvetica', 1, 1, 'Helvetica-BoldOblique')
+    # Fallback logic temporarily commented out for debugging
+    # # Fallback if TimesNewRomanPSMT registration failed
+    # if not registered_successfully:
+    #     font_name = 'Helvetica'
+    #     font_name_bold = 'Helvetica-Bold'
+    #     # Ensure base Helvetica styles are used
+    #     addMapping('Helvetica', 0, 0, 'Helvetica')
+    #     addMapping('Helvetica', 1, 0, 'Helvetica-Bold')
+    #     addMapping('Helvetica', 0, 1, 'Helvetica-Oblique')
+    #     addMapping('Helvetica', 1, 1, 'Helvetica-BoldOblique')
 
 
-    # --- Styles using the registered font (TimesNewRomanPSMT or Helvetica fallback) ---
+    # --- Styles using the registered font (Must be TimesNewRomanPSMT at this point) ---
     styles = getSampleStyleSheet()
     # Use the standard bold name for headers, your TTF name for normal text
     styles['h1'].fontName = font_name_bold
