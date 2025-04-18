@@ -556,7 +556,6 @@ span.select2-container {
     transform: rotateY(-25deg) rotateY(90deg) translateZ(8px);
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     z-index: 10;
-    animation: book-float 2.5s ease-in-out infinite;
     background-image: 
         linear-gradient(to bottom, 
             rgba(255,255,255,0) 5%, 
