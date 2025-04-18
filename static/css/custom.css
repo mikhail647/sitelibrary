@@ -265,7 +265,7 @@ span.select2-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(240, 240, 245, 0.9); /* Slightly greyish overlay */
     z-index: 1060;
     display: none;
     align-items: center;
@@ -444,7 +444,7 @@ span.select2-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(240, 240, 245, 0.9); /* Slightly greyish overlay */
     z-index: 1060;
     display: none;
     align-items: center;
@@ -456,206 +456,167 @@ span.select2-container {
     display: flex;
 }
 
-/* Контейнер книги */
+/* Container for the book */
 .book-loader {
-    width: 160px;
-    height: 110px;
-    position: relative;
-    perspective: 1500px;
-    margin: 30px;
-}
-
-/* Книга */
-.book {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transform-origin: left center;
-    transition: transform .5s ease;
-    transform: rotateY(-30deg);
-}
-
-/* Обложка (передняя часть) */
-.book-front {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: linear-gradient(45deg, #343a40 0%, #495057 100%);
-    border-radius: 2px 10px 10px 2px;
-    box-shadow: 
-        5px 5px 20px rgba(0, 0, 0, 0.2),
-        1px 1px 5px rgba(0, 0, 0, 0.2);
-    transform: translateZ(12.5px);
-}
-
-/* Задняя часть */
-.book-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: #343a40;
-    border-radius: 2px 10px 10px 2px;
-    transform: translateZ(-12.5px);
-    box-shadow: 
-        -5px 5px 20px rgba(0, 0, 0, 0.2),
-        -1px 1px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Корешок */
-.book-spine {
-    position: absolute;
-    width: 25px;
-    height: 100%;
-    left: 0;
-    top: 0;
-    background: linear-gradient(to right, #212529, #343a40);
-    transform: rotateY(90deg) translateZ(-12.5px);
-    transform-origin: left;
-    border-radius: 2px 0 0 2px;
-    box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.3);
-}
-
-/* Страницы */
-.book-loader-page {
-    position: absolute;
     width: 150px;
-    height: 100%;
-    top: 0;
-    right: 0;
-    background-color: #fff;
-    transform-origin: left center;
-    transform-style: preserve-3d;
-    z-index: 2;
-    border-radius: 0 5px 5px 0;
-    overflow: hidden;
-    
-    /* Имитация текста на странице */
-    background-image: 
-        /* Заголовок */
-        linear-gradient(90deg, #ddd 60%, transparent 60%),
-        /* Строки текста */
-        linear-gradient(90deg, #eee 85%, transparent 85%),
-        linear-gradient(90deg, #eee 75%, transparent 75%),
-        linear-gradient(90deg, #eee 80%, transparent 80%),
-        linear-gradient(90deg, #eee 65%, transparent 65%),
-        linear-gradient(90deg, #eee 70%, transparent 70%);
-    background-size: 
-        120px 3px,  /* Заголовок */
-        130px 1px,  /* Строки текста */
-        100px 1px,
-        120px 1px,
-        90px 1px,
-        105px 1px;
-    background-position:
-        15px 20px,  /* Заголовок */
-        15px 35px,  /* Строки текста */
-        15px 50px,
-        15px 65px,
-        15px 80px,
-        15px 95px;
-    background-repeat: no-repeat;
-    box-shadow: 
-        inset -1px 0 1px rgba(0, 0, 0, 0.1),
-        1px 1px 3px rgba(0, 0, 0, 0.1);
+    height: 105px;
+    position: relative;
+    perspective: 1200px;
+    margin-bottom: 25px; /* Space below the book */
+    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.25));
 }
 
-/* Тень при перелистывании */
-.book-loader-page::before {
+/* The book itself, allowing rotation */
+.book {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transform-style: preserve-3d;
+    transform: rotateY(-35deg); /* Initial tilt */
+}
+
+/* Common styles for book parts */
+.book-part {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 3px 8px 8px 3px; /* Rounded outer edges */
+    box-sizing: border-box;
+    backface-visibility: hidden; /* Hide back when flipping */
+}
+
+/* Front cover */
+.book-cover {
+    background: linear-gradient(45deg, #3a4148 0%, #505a64 100%);
+    box-shadow: 
+        inset 0 0 10px rgba(0, 0, 0, 0.3), /* Inner shadow */
+        5px 5px 15px rgba(0, 0, 0, 0.15); /* Outer shadow */
+    transform: translateZ(10px); /* Position front cover */
+    z-index: 5; /* Ensure cover is on top initially */
+}
+
+.book-cover::before { /* Decorative element on cover */
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, 
-        rgba(0, 0, 0, 0.1) 0%,
-        rgba(0, 0, 0, 0.05) 10%,
-        transparent 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px 5px 5px 2px;
 }
 
-/* Анимация страниц */
-.book-loader-page:nth-child(1) {
-    animation: flip1 2.5s infinite ease-in-out;
+/* Spine */
+.book-spine {
+    width: 20px; /* Spine thickness */
+    background: linear-gradient(to right, #2e3338, #41484f);
+    transform: rotateY(-90deg) translateX(-10px); /* Position spine */
+    transform-origin: right center;
+    border-radius: 3px 0 0 3px;
+    box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.3);
+    z-index: 0; /* Behind pages */
+}
+
+/* Pages */
+.book-page {
+    width: calc(100% - 10px); /* Slightly narrower than cover */
+    height: calc(100% - 10px); /* Slightly shorter than cover */
+    top: 5px;
+    left: 10px;
+    background-color: #f8f4e8; /* Creamy paper color */
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    border-radius: 0 5px 5px 0;
+    box-shadow: 
+        inset -1px 0 1px rgba(0, 0, 0, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.05);
+    
+    /* Text simulation */
+    background-image: 
+        linear-gradient(90deg, rgba(0,0,0,0.08) 70%, transparent 70%), /* Simulating text lines */
+        linear-gradient(90deg, rgba(0,0,0,0.06) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.07) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.05) 90%, transparent 90%);
+    background-size: 
+        120px 1px,
+        100px 1px,
+        110px 1px,
+        95px 1px;
+    background-position: 
+        15px 18px,
+        15px 33px,
+        15px 48px,
+        15px 63px,
+        15px 78px; /* Adjusted line positions */
+    background-repeat: repeat-y;
+}
+
+/* Individual page animations */
+.book-page.page-1 {
+    animation: flip 3s infinite ease-in-out 0s;
     z-index: 3;
 }
 
-.book-loader-page:nth-child(2) {
-    animation: flip2 2.5s infinite ease-in-out;
+.book-page.page-2 {
+    animation: flip 3s infinite ease-in-out 0.2s;
     z-index: 2;
 }
 
-.book-loader-page:nth-child(3) {
-    animation: flip3 2.5s infinite ease-in-out;
+.book-page.page-3 {
+    animation: flip 3s infinite ease-in-out 0.4s;
     z-index: 1;
 }
 
-@keyframes flip1 {
-    0%, 20% {
+/* The flip animation */
+@keyframes flip {
+    0%, 15% {
         transform: rotateY(0deg);
+        box-shadow: 
+            inset -1px 0 1px rgba(0, 0, 0, 0.05),
+            0 1px 2px rgba(0, 0, 0, 0.05);
+        background-color: #f8f4e8;
     }
-    40%, 60% {
-        transform: rotateY(-140deg);
+    40%, 60% { /* Mid-flip: darker shadow, slightly bent */
+        transform: rotateY(-150deg);
+        box-shadow: 
+            5px 5px 10px rgba(0, 0, 0, 0.2),
+            inset 1px 0 2px rgba(0, 0, 0, 0.1);
+        background-color: #f0eade;
     }
-    80%, 100% {
+    85%, 100% { /* End-flip: flat against the back */
         transform: rotateY(-180deg);
+        box-shadow: 
+            -2px 1px 5px rgba(0, 0, 0, 0.1),
+            inset 1px 0 1px rgba(0, 0, 0, 0.05);
+        background-color: #f8f4e8;
+        z-index: 0; /* Move behind others once flipped */
     }
 }
 
-@keyframes flip2 {
-    0%, 30% {
-        transform: rotateY(0deg);
-    }
-    50%, 70% {
-        transform: rotateY(-140deg);
-    }
-    90%, 100% {
-        transform: rotateY(-180deg);
-    }
-}
-
-@keyframes flip3 {
-    0%, 40% {
-        transform: rotateY(0deg);
-    }
-    60%, 80% {
-        transform: rotateY(-140deg);
-    }
-    95%, 100% {
-        transform: rotateY(-180deg);
-    }
-}
-
-/* Эффект тени при перевороте */
-.book-loader-page:nth-child(1):hover::before,
-.book-loader-page:nth-child(2):hover::before,
-.book-loader-page:nth-child(3):hover::before {
-    opacity: 1;
-}
-
-/* Стилизация текста "Загрузка..." */
+/* Loading Text Styling */
 #loading-overlay p {
     font-family: "Georgia", serif;
-    margin-top: 2rem;
-    color: #495057;
+    margin-top: 1.5rem; /* Closer to the book */
+    color: #343a40; /* Darker grey */
     font-size: 1.1rem;
-    letter-spacing: 1px;
-    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.9);
+    font-weight: normal;
+    letter-spacing: 0.8px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 #loading-overlay p::before,
 #loading-overlay p::after {
-    content: "~";
+    content: "~~"; /* Double tilde */
     color: #6c757d;
-    margin: 0 8px;
-    font-size: 1.2rem;
-    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.9);
+    margin: 0 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    vertical-align: middle;
+    display: inline-block;
+    transform: translateY(-1px);
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 /* Исправления для форм с выпадающими списками */
@@ -723,6 +684,10 @@ span.select2-container {
 }
 
 .form-group .btn,
+.card-body .btn {
+    margin-top: 0.5rem;
+}
+
 .card-body .btn {
     margin-top: 0.5rem;
 } 
