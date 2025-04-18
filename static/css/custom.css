@@ -249,12 +249,13 @@ span.select2-container {
 
 /* 8. Footer */
 .footer {
-    background-color: #e9ecef; 
+    background-color: #e9ecef;
     padding: 1.5rem 0;
-    margin-top: auto; 
+    margin-top: auto;
     font-size: 0.9em;
     color: #6c757d;
     flex-shrink: 0; /* Prevent footer shrinking */
+    border-top: 1px solid #dee2e6; /* Add subtle top border */
 }
 
 /* Loading Overlay */
@@ -278,6 +279,32 @@ span.select2-container {
 .action-btn {
     font-size: 0.85em;
     padding: 0.25rem 0.5rem;
+}
+
+/* General Button Enhancements */
+.btn {
+    /* Ensure decent minimum size for touch targets */
+    min-height: 38px; 
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem; /* Space between icon and text */
+}
+
+.btn i.fas, .btn i.far, .btn i.fab {
+    /* Adjust icon size if needed, maybe slightly smaller than text */
+    font-size: 0.9em;
+    /* No extra margin needed if using gap */
+}
+
+.btn-sm {
+    min-height: 31px; /* Adjust for smaller buttons */
+    gap: 0.25rem;
+}
+
+.btn-lg {
+     min-height: 48px; /* Adjust for larger buttons */
+     gap: 0.4rem;
 }
 
 /* Custom CSS for Library Project */
@@ -348,4 +375,62 @@ span.select2-container {
     width: 100% !important;
 }
 
-/* Add more custom styles below */ 
+/* Add more custom styles below */
+
+/* --- Mobile Specific Styles --- */
+@media (max-width: 991.98px) { /* Target collapsed navbar state (Bootstrap LG breakpoint) */
+    .navbar-collapse {
+        /* Optional: Add background or border when collapsed */
+        /* background-color: rgba(0, 0, 0, 0.1); */
+        /* border-top: 1px solid #495057; */
+        margin-top: 0.5rem; /* Add some space above collapsed items */
+    }
+
+    .navbar-dark .navbar-nav {
+        /* Center nav items text in collapsed menu */
+       align-items: center;
+    }
+
+    .navbar-dark .navbar-nav .nav-link {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        text-align: center; /* Center text explicitly */
+        width: 90%; /* Make links take more width */
+        margin: 0.25rem auto; /* Center block element */
+        border-radius: var(--bs-border-radius);
+        border-top: none; /* Remove top border from desktop active style */
+        transform: none; /* Remove transform from desktop active style */
+        box-shadow: none; /* Remove shadow from desktop active style */
+    }
+
+    .navbar-dark .navbar-nav .nav-link.active,
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link:focus {
+        /* Consistent background for active/hover/focus on mobile */
+        background-color: #495057; 
+        color: #fff;
+        width: 90%; /* Ensure width is maintained */
+    }
+    
+    /* Style login/register buttons in collapsed menu */
+    .navbar-nav .btn {
+        width: 80%; /* Make buttons wider */
+        margin: 0.5rem auto;
+    }
+    
+    /* Adjust dropdown menu alignment if needed */
+    .navbar-nav .dropdown-menu {
+        text-align: center; /* Center dropdown items */
+        background-color: #343a40; /* Match navbar */
+        border: 1px solid #495057;
+    }
+    .navbar-dark .dropdown-item {
+        color: rgba(255, 255, 255, 0.8);
+    }
+     .navbar-dark .dropdown-item:hover,
+     .navbar-dark .dropdown-item:focus {
+        background-color: #495057;
+        color: #fff;
+    }
+
+} 
