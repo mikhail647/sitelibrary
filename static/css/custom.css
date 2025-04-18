@@ -546,25 +546,18 @@ span.select2-container {
 
 /* Корешок книги */
 .book-loader .book-spine {
-    /* content: ""; */ /* Не нужно для div */
+    content: "";
     position: absolute;
-    width: 16px; /* Толщина корешка */
+    width: 16px;
     height: 100%;
-    left: 0; /* Привязка к левому краю контейнера до трансформации */
+    left: 0;
     top: 0;
     background: linear-gradient(to right, #262b2f, #343a40);
-    border-radius: 2px 0 0 2px; /* Скругление внешнего края */
-    /* 
-       Трансформация:
-       1. rotateY(-25deg): Применяем поворот контейнера.
-       2. rotateY(90deg): Поворачиваем сам корешок, чтобы он смотрел наружу.
-       3. translateZ(8px): Сдвигаем вперед по новой оси Z, чтобы он был на уровне шарнира страниц.
-    */
+    border-radius: 2px 0 0 2px;
     transform: rotateY(-25deg) rotateY(90deg) translateZ(8px);
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    z-index: 10; /* Выше задней обложки (0), но ниже перелистывающихся страниц (15+) */
-    animation: book-float 2.5s ease-in-out infinite; /* Та же анимация "парения" */
-    /* Небольшой блик для объема */
+    z-index: 10;
+    animation: book-float 2.5s ease-in-out infinite;
     background-image: 
         linear-gradient(to bottom, 
             rgba(255,255,255,0) 5%, 
