@@ -546,23 +546,37 @@ span.select2-container {
 
 /* Корешок книги */
 .book-loader .book-spine {
-    content: "";
     position: absolute;
     width: 16px;
     height: 100%;
-    left: 0;
+    left: -8px; /* Позиционируем для видимости между обложками */
     top: 0;
     background: linear-gradient(to right, #262b2f, #343a40);
     border-radius: 2px 0 0 2px;
-    transform: rotateY(-25deg) rotateY(90deg) translateZ(8px);
+    transform: rotateY(-25deg) rotateY(90deg) translateZ(-6px);
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     z-index: 10;
     animation: book-float 2.5s ease-in-out infinite;
+    /* Добавляем оформление корешка */
     background-image: 
         linear-gradient(to bottom, 
             rgba(255,255,255,0) 5%, 
             rgba(255,255,255,0.1) 50%, 
             rgba(255,255,255,0) 95%);
+}
+
+/* Декоративные полоски для имитации надписей на корешке */
+.book-loader .book-spine:after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 3px;
+    width: 10px;
+    height: 110px;
+    background-image: 
+        linear-gradient(to bottom, transparent, transparent 20%, rgba(224, 194, 102, 0.8) 20%, rgba(224, 194, 102, 0.8) 22%, transparent 22%, transparent 45%,
+        rgba(224, 194, 102, 0.8) 45%, rgba(224, 194, 102, 0.8) 47%, transparent 47%, transparent 70%,
+        rgba(224, 194, 102, 0.8) 70%, rgba(224, 194, 102, 0.8) 72%, transparent 72%);
 }
 
 /* Общие стили для перелистывающихся страниц */
@@ -591,25 +605,64 @@ span.select2-container {
     z-index: 5;
 }
 
+/* Добавляем тиснение на обложке */
+.book-loader-page:nth-child(1):after {
+    content: "";
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 20px;
+    background-color: rgba(224, 194, 102, 0.6);
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* Вторая страница - с более толстым текстом */
 .book-loader-page:nth-child(2) {
     background-color: #f8f8f8;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
     animation: flip-page-2 2.5s infinite ease-in-out;
     z-index: 4;
-    /* Увеличиваем толщину линии и делаем темнее */
+    /* Улучшаем текст, делаем более реалистичным */
     background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 80%, transparent 80%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 65%, transparent 65%);
-    background-size: 100% 1.5px; /* Толщина линии 1.5px */
+        /* Четыре абзаца текста с разной длиной строк */
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 82%, transparent 82%),
+        
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 78%, transparent 78%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 65%, transparent 65%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 75%, transparent 75%),
+        
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 82%, transparent 82%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 65%, transparent 65%);
+    background-size: 
+        90% 2px, 85% 2px, 88% 2px, 75% 2px,
+        80% 2px, 75% 2px, 85% 2px, 70% 2px,
+        80% 2px, 75% 2px, 65% 2px;
     background-position: 
-        20px 30px,
-        20px 50px,
-        20px 70px,
-        20px 90px;
+        20px 40px, 20px 46px, 20px 52px, 20px 58px,
+        20px 70px, 20px 76px, 20px 82px, 20px 88px,
+        20px 100px, 20px 106px, 20px 112px;
     background-repeat: no-repeat;
+}
+
+/* Заголовок для второй страницы */
+.book-loader-page:nth-child(2):before {
+    /* Заголовок */
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 70%;
+    height: 8px;
+    background-color: rgba(0,0,0,0.15);
+    border-radius: 2px;
 }
 
 /* Третья страница - с более толстым текстом */
@@ -618,19 +671,43 @@ span.select2-container {
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.06);
     animation: flip-page-3 2.5s infinite ease-in-out;
     z-index: 3;
-    /* Увеличиваем толщину линии и делаем темнее */
+    /* Улучшаем текст, делаем более реалистичным */
     background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 70%, transparent 70%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 60%, transparent 60%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%);
-    background-size: 100% 1.5px; /* Толщина линии 1.5px */
+        /* Четыре абзаца текста с разной длиной строк */
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 85%, transparent 85%),
+        
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 65%, transparent 65%),
+        
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 60%, transparent 60%),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 80%, transparent 80%);
+    background-size: 
+        85% 2px, 80% 2px, 75% 2px, 70% 2px,
+        80% 2px, 85% 2px, 75% 2px, 70% 2px,
+        75% 2px, 65% 2px, 80% 2px;
     background-position: 
-        20px 35px,
-        20px 55px,
-        20px 75px,
-        20px 95px;
+        20px 40px, 20px 46px, 20px 52px, 20px 58px,
+        20px 70px, 20px 76px, 20px 82px, 20px 88px,
+        20px 100px, 20px 106px, 20px 112px;
     background-repeat: no-repeat;
+}
+
+/* Заголовок для третьей страницы */
+.book-loader-page:nth-child(3):before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 65%;
+    height: 8px;
+    background-color: rgba(0,0,0,0.15);
+    border-radius: 2px;
 }
 
 /* Анимация плавающей книги */
