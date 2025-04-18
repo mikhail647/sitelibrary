@@ -450,7 +450,7 @@ span.select2-container {
     height: 65px;
     position: relative;
     perspective: 150px;
-    /* background-color: #f8f9fa; Use page color now */
+    background-color: #fff; /* Changed from #f8f9fa to white */
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     /* Spine on the left */
     border-radius: 2px 5px 5px 2px; 
