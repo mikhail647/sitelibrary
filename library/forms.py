@@ -44,8 +44,10 @@ class BookLoanForm(forms.ModelForm):
         # Check if we are initializing from a request context
         is_from_request = kwargs.pop('is_from_request', False)
         reader_instance = kwargs.get('initial', {}).get('reader')
+        # Pop the custom argument *before* calling super
+        copy_queryset = kwargs.pop('copy_queryset', None)
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs) # Now kwargs doesn't contain copy_queryset
 
         # If initialized from a request with a reader, make reader not required
         # and disable the widget. The view will handle setting the reader.
@@ -58,8 +60,7 @@ class BookLoanForm(forms.ModelForm):
             # Clean up disabled attribute if not from request (e.g., on form error refresh)
             del self.fields['reader'].widget.attrs['disabled']
 
-        # Ensure copy queryset is passed if provided (view needs to handle this)
-        copy_queryset = kwargs.pop('copy_queryset', None)
+        # Apply the copy queryset *after* super init if it was provided
         if copy_queryset is not None:
              self.fields['copy'].queryset = copy_queryset
 
