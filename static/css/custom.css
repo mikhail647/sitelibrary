@@ -963,19 +963,21 @@ span.select2-container {
 
 /* Стилизация ссылок действий в карточке */
 .card .list-group-flush .list-group-item {
-    padding: 0; /* Убираем паддинг у li, т.к. он будет у ссылки */
-    border: none; /* Убираем стандартные границы list-group-flush */
-    margin-bottom: 0.6rem; /* Добавляем отступ между элементами списка (кнопками) */
+    padding: 0;
+    border: none;
+    margin-bottom: 0.6rem;
 }
 
 .card .list-group-flush .list-group-item:last-child {
-    margin-bottom: 0; /* Убираем отступ у последнего элемента */
+    margin-bottom: 0;
 }
 
 .card .list-group .list-group-item a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     width: 100%;
-    padding: 0.7rem 1.2rem; /* Паддинг кнопки */
+    padding: 0.7rem 1.2rem;
     text-decoration: none;
     border-radius: 0.375rem;
     text-align: left;
@@ -985,6 +987,13 @@ span.select2-container {
     background-color: var(--bs-btn-bg, #343a40);
     border: 1px solid var(--bs-btn-border-color, #343a40);
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+/* Стили для иконки внутри кнопки-ссылки */
+.card .list-group .list-group-item a i {
+    font-size: 1.1em;
+    opacity: 0.8;
+    line-height: 1;
 }
 
 .card .list-group .list-group-item a:hover {
