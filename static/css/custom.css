@@ -597,8 +597,6 @@ span.select2-container {
     transform-style: preserve-3d;
     overflow: hidden;
     transition: box-shadow 0.2s ease-out;
-    background-image: none;
-    background-color: #fff;
 }
 
 /* Первая страница (анимируется как обложка) - без текста */
