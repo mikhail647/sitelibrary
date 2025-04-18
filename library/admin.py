@@ -272,7 +272,7 @@ class BookCopyAdmin(admin.ModelAdmin):
         if updated_count > 0:
              message_parts.append(f"{updated_count} копий отмечено как поврежденные.")
         if fine_created_count > 0:
-             message_parts.append(f"Создано {fine_created_count} штрафов (50% стоимости).")
+             message_parts.append(f"Создано {fine_created_count} штрафов (50%% стоимости).")
         if cost_missing_count > 0:
              message_parts.append(f"{cost_missing_count} копий повреждено, но штраф не создан (стоимость не указана).")
         if no_loan_found_count > 0 and cost_missing_count == 0: # Avoid double reporting
@@ -284,7 +284,7 @@ class BookCopyAdmin(admin.ModelAdmin):
              message_parts.append("Не выбрано копий для изменения статуса на 'поврежденный'.")
              
         self.message_user(request, " ".join(message_parts))
-    mark_damaged.short_description = "Отметить поврежденным (+ штраф 50%, если есть стоимость и активная выдача)"
+    mark_damaged.short_description = "Отметить поврежденным (+ штраф 50%%, если есть стоимость и активная выдача)"
 
     def mark_written_off(self, request, queryset):
         # Check if copy is currently issued before writing off
