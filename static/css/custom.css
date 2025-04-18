@@ -15,16 +15,22 @@ body {
 main.container {
     flex: 1; /* Allow main content to grow */
     background-color: #ffffff; /* Ensure main area is white */
+    padding-top: 1.5rem; /* Увеличим отступ сверху */
+    padding-bottom: 2rem; /* Добавим отступ снизу */
 }
 
 a {
     color: #0d6efd; /* Standard link blue */
     text-decoration: none; 
+    transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
+    text-decoration-color: rgba(13, 110, 253, 0.4); /* Полупрозрачное подчеркивание */
+    text-underline-offset: 0.2em; /* Небольшой отступ подчеркивания */
 }
 
 a:hover {
     color: #0a58ca;
     text-decoration: underline;
+    text-decoration-color: rgba(13, 110, 253, 1); /* Непрозрачное подчеркивание при наведении */
 }
 
 /* 2. Dark Grey Navbar */
@@ -91,6 +97,14 @@ a:hover {
     margin-bottom: 1.5rem; 
     background-color: #fff; /* White card background */
     border: 1px solid #dee2e6; /* Standard light border */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); /* Базовая легкая тень */
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    border-radius: 0.375rem; /* Слегка скруглим */
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Усиленная тень при наведении */
+    transform: translateY(-2px); /* Легкий подъем */
 }
 
 .card-header {
@@ -98,6 +112,9 @@ a:hover {
     background-color: #f8f9fa; /* Light grey header */
     border-bottom: 1px solid #dee2e6;
     color: #212529; /* Dark text */
+    padding: 0.8rem 1.25rem;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
 }
 
 /* Style specific headers with dark grey if desired */
@@ -111,6 +128,9 @@ a:hover {
     color: #fff;
 }
 
+.card-body {
+    padding: 1.25rem; /* Единый отступ в теле */
+}
 
 /* 4. Buttons (Standard Bootstrap Styles) */
 .btn {
@@ -147,39 +167,58 @@ a:hover {
 .table {
     color: #212529; /* Default dark text */
     margin-bottom: 1.5rem; /* More space below tables */
+    border: 1px solid #dee2e6;
+    border-radius: 0.3rem; /* Скругление для всей таблицы */
+    overflow: hidden; /* Чтобы скругление работало для шапки */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .table thead {
-    background-color: #e9ecef; /* Lighter grey header */
+    background-color: #e9ecef; /* Цвет шапки */
+    border-bottom: 2px solid #adb5bd; /* Более четкая граница шапки */
     color: #212529;
 }
 
-.table-hover tbody tr:hover {
-    background-color: #f1f1f1; /* Subtle hover */
+.table th {
+    padding: 0.8rem 1rem;
+    font-weight: 500;
 }
 
-.table th {
-    /* background-color: #f8f9fa; /* Light gray for table headers */
+.table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #f1f1f1; /* Тонкие линии между строками */
+}
+
+.table tbody tr:first-child td {
+    border-top: none; /* Убираем верхнюю границу у первой строки */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa; /* Светлый фон при наведении */
+    color: #000;
 }
 
 /* 6. Forms (Standard Light) */
 .form-label {
+    margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #212529;
 }
 
 .form-control, .form-select {
     background-color: #fff;
     color: #212529;
     border: 1px solid #ced4da;
+    border-radius: 0.3rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .form-control:focus, .form-select:focus {
     color: #212529;
     background-color: #fff;
-    border-color: #86b7fe; /* Bootstrap focus blue */
+    border-color: #343a40; /* Темно-серая рамка при фокусе */
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(52, 58, 64, 0.25); /* Тень в цвет рамки */
 }
 
 .form-control::placeholder {
@@ -333,7 +372,18 @@ main {
 
 /* Alert / Message styling */
 .alert {
-    /* Add custom alert styles if needed */
+    border-radius: 0.375rem;
+    border-width: 1px;
+    border-left-width: 4px; /* Акцент слева */
+    padding: 0.9rem 1.2rem;
+}
+
+.alert-heading {
+    font-weight: 500;
+}
+
+.alert .btn-close {
+    padding: 0.9rem 1.2rem; /* Увеличим область клика */
 }
 
 /* Form styling - Ensure Select2 looks okay with Bootstrap */
@@ -732,4 +782,268 @@ span.select2-container {
 
 .card-body .btn {
     margin-top: 0.5rem;
-} 
+}
+
+/* ===================================== */
+/* == Стилизация Панели Персонала == */
+/* ===================================== */
+
+/* Общие улучшения для контейнера панели */
+.staff-dashboard-container, /* Примерный класс контейнера */
+.staff-page-container /* Общий класс для страниц персонала */
+{
+    padding-top: 1.5rem; 
+}
+
+/* Карточки на панели персонала */
+.staff-card {
+    border: 1px solid #dee2e6; 
+    border-radius: 0.5rem; /* Более скругленные углы */
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Легкая тень */
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.staff-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Тень при наведении */
+}
+
+/* Заголовок карточки персонала (используем темный) */
+.staff-card .card-header {
+    background-color: #343a40; /* Темно-серый фон */
+    color: #fff; /* Белый текст */
+    border-bottom: 1px solid #495057;
+    font-weight: 500;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.staff-card .card-header i {
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+.staff-card .card-body {
+    padding: 1.5rem; /* Больше отступов внутри карточки */
+}
+
+/* Карточки со статистикой */
+.stat-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+
+.stat-card .stat-number {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: #343a40;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card .stat-label {
+    font-size: 0.95rem;
+    color: #6c757d;
+    display: block;
+}
+
+/* Кнопки действий на панели персонала */
+.staff-actions .btn {
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+/* Улучшение кнопок в таблицах */
+.table .btn-action-icon {
+    padding: 0.3rem 0.6rem; /* Компактнее */
+    font-size: 0.9em;
+    line-height: 1; /* Убираем лишнюю высоту */
+    min-height: auto; /* Сбрасываем мин. высоту */
+}
+
+.table .btn-action-icon i {
+    margin-right: 0; /* Убираем отступ иконки */
+    font-size: 1.1em; /* Делаем иконку чуть больше */
+}
+
+/* Разделители между секциями (опционально) */
+.staff-section-divider {
+    border-top: 1px solid #e9ecef;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Стили для форм на страницах персонала (если нужны специфичные) */
+.staff-form .form-label {
+    font-weight: 500;
+}
+
+/* Улучшение внешнего вида фильтров (если используются формы) */
+.filter-form {
+    background-color: #f8f9fa; /* Светлый фон для области фильтров */
+    padding: 1rem 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-form .form-label {
+    margin-bottom: 0.25rem; /* Меньше отступ под меткой */
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.filter-form .row > div {
+    padding-bottom: 0.5rem; /* Отступы между полями фильтра */
+}
+
+.filter-form .btn {
+    margin-top: 0.5rem; /* Отступ для кнопки фильтра */
+}
+
+/* --- End Общие улучшения UI --- */
+
+/* ===================================== */
+/* ===== Улучшения UI для Читателя ===== */
+/* ===================================== */
+
+/* Карточка книги в каталоге (Примерный класс: .book-card) */
+.book-card {
+    border: 1px solid #e9ecef; /* Тоньше граница */
+    border-radius: 0.375rem;
+    overflow: hidden; /* Скрываем вылезающие части изображения */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+}
+
+.book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.09);
+}
+
+.book-card .card-img-top {
+    max-height: 250px; /* Ограничим высоту обложки */
+    object-fit: contain; /* Масштабируем обложку без искажений */
+    padding: 1rem; /* Отступы вокруг обложки */
+    background-color: #f8f9fa; /* Светлый фон под обложкой */
+    border-bottom: 1px solid #e9ecef;
+}
+
+.book-card .card-body {
+    padding: 1rem 1.25rem;
+}
+
+.book-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #212529;
+}
+
+.book-card .card-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.75rem;
+}
+
+.book-card .card-text.book-description {
+    font-size: 0.9rem;
+    color: #495057;
+    max-height: 60px; /* Ограничим высоту описания */
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.book-card .btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* Страница деталей книги (Примерные классы) */
+.book-details-container .book-cover-image {
+    max-width: 250px;
+    border-radius: 0.3rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    border: 1px solid #eee;
+}
+
+.book-details-info h1, .book-details-info .h1 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.book-details-info .author {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.book-details-info .description {
+    margin-top: 1.5rem;
+    line-height: 1.6;
+}
+
+.book-details-meta dl {
+    margin-top: 1.5rem;
+}
+
+.book-details-meta dt {
+    font-weight: 500;
+    color: #495057;
+    padding-right: 0.5em;
+}
+
+.book-details-meta dd {
+    color: #212529;
+}
+
+.book-details-actions .btn {
+    margin-top: 1rem;
+    margin-right: 0.5rem;
+}
+
+/* Списки пользователя (Запросы, Выдачи, Штрафы) */
+/* Используем улучшенные стили .table */
+
+/* Дополнительные стили для статусов (Пример) */
+.status-badge {
+    display: inline-block;
+    padding: 0.3em 0.6em;
+    font-size: 0.8em;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-pending, .status-ожидает { background-color: #ffc107; color: #333; }
+.status-approved, .status-одобрен { background-color: #198754; color: #fff; }
+.status-rejected, .status-отклонен { background-color: #dc3545; color: #fff; }
+.status-processing, .status-в_обработке { background-color: #0dcaf0; color: #000; }
+.status-issued, .status-выдана { background-color: #0d6efd; color: #fff; }
+.status-returned, .status-возвращена { background-color: #6c757d; color: #fff; }
+.status-overdue, .status-просрочена { background-color: #fd7e14; color: #fff; }
+.status-paid, .status-оплачен { background-color: #adb5bd; color: #333; }
+
+/* Улучшение отображения штрафов (Примерный класс: .fine-item) */
+.fine-item {
+    border-left: 4px solid #dc3545; /* Красная полоса для штрафов */
+    padding: 1rem 1.5rem;
+    background-color: #fff; 
+    margin-bottom: 1rem;
+    border-radius: 0.3rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.fine-item strong {
+    color: #dc3545;
+}
+
+/* --- End Улучшения UI для Читателя --- */ 
