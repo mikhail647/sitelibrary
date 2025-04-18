@@ -3,35 +3,56 @@
 {% block title %}Выдача книги{% endblock %}
 
 {% block content %}
-{# Use Bootstrap card and form styling #}
-<div class="card">
-    <div class="card-header">
-        <h2>Выдача книги</h2>
-    </div>
-    <div class="card-body">
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {# Render form fields manually or use crispy forms for better control #}
-            <div class="mb-3">
-                <label for="{{ form.reader.id_for_label }}" class="form-label">{{ form.reader.label }}</label>
-                {{ form.reader }}
-                {% if form.reader.errors %}
-                    <div class="invalid-feedback d-block">
-                        {{ form.reader.errors|striptags }}
-                    </div>
-                {% endif %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0 h5"><i class="fas fa-book-medical me-2"></i>Выдача книги</h2>
             </div>
-            <div class="mb-3">
-                <label for="{{ form.copy.id_for_label }}" class="form-label">{{ form.copy.label }}</label>
-                {{ form.copy }}
-                {% if form.copy.errors %}
-                    <div class="invalid-feedback d-block">
-                        {{ form.copy.errors|striptags }}
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {# Use Bootstrap form-floating or standard layout #}
+                    <div class="mb-3">
+                        <label for="{{ form.reader.id_for_label }}" class="form-label">{{ form.reader.label }}</label>
+                        {{ form.reader }} {# Widget should have form-control via forms.py or custom CSS #}
+                        {% if form.reader.help_text %}
+                            <div class="form-text">{{ form.reader.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.reader.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.reader.errors|striptags }}
+                            </div>
+                        {% endif %}
                     </div>
-                {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.copy.id_for_label }}" class="form-label">{{ form.copy.label }}</label>
+                        {{ form.copy }} {# Widget should have form-control via forms.py or custom CSS #}
+                         {% if form.copy.help_text %}
+                            <div class="form-text">{{ form.copy.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.copy.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.copy.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Выдать книгу
+                        </button>
+                    </div>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary">Выдать книгу</button>
-        </form>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Add any page-specific JS needed for Select2 or other elements -->
 {% endblock %} 

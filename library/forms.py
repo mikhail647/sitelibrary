@@ -9,9 +9,13 @@ class BookCatalogForm(forms.ModelForm):
         model = BookCatalog
         fields = ['book_title', 'isbn', 'publication_year', 'publisher_name', 'acquisition_date', 'book_status', 'authors']
         widgets = {
-            'publication_year': forms.NumberInput(attrs={'min': 1000, 'max': timezone.now().year + 1}),
-            'acquisition_date': forms.DateInput(attrs={'type': 'date'}),
-            'authors': forms.SelectMultiple(attrs={'size': '10'}),
+            'book_title': forms.TextInput(attrs={'class': 'form-control'}),
+            'isbn': forms.TextInput(attrs={'class': 'form-control'}),
+            'publication_year': forms.NumberInput(attrs={'min': 1000, 'max': timezone.now().year + 1, 'class': 'form-control'}),
+            'publisher_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'acquisition_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'book_status': forms.Select(attrs={'class': 'form-select'}),
+            'authors': forms.SelectMultiple(attrs={'size': '10', 'class': 'form-select'}),
         }
 
 class BookLoanForm(forms.ModelForm):
@@ -38,32 +42,38 @@ class BookLoanForm(forms.ModelForm):
 
 # --- Registration Form --- #
 class RegistrationForm(forms.ModelForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     # Role selection might imply ReaderType selection implicitly or need adjustment
     # We'll handle ReaderType assignment in the view for now.
 
     # --- Student Fields (Conditional) ---
-    faculty = forms.CharField(label='Факультет', required=False, max_length=100)
-    study_group = forms.CharField(label='Группа', required=False, max_length=20)
-    course_number = forms.IntegerField(label='Курс', required=False, min_value=1, max_value=10)
+    faculty = forms.CharField(label='Факультет', required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    study_group = forms.CharField(label='Группа', required=False, max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    course_number = forms.IntegerField(label='Курс', required=False, min_value=1, max_value=10, widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     # --- Teacher/Staff Fields (Conditional) ---
-    department = forms.CharField(label='Кафедра/Отдел', required=False, max_length=100)
-    position = forms.CharField(label='Должность', required=False, max_length=100)
-    academic_degree = forms.CharField(label='Ученая степень', required=False, max_length=50)
-    academic_title = forms.CharField(label='Ученое звание', required=False, max_length=50)
+    department = forms.CharField(label='Кафедра/Отдел', required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    position = forms.CharField(label='Должность', required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    academic_degree = forms.CharField(label='Ученая степень', required=False, max_length=50, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    academic_title = forms.CharField(label='Ученое звание', required=False, max_length=50, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = CustomUser
         # Removed role from here, will handle implicitly or differently
-        fields = ('username', 'first_name', 'last_name', 'email') 
+        fields = ('username', 'first_name', 'last_name', 'email')
         labels = {
             'username': 'Логин',
-            'first_name': 'Имя', 
+            'first_name': 'Имя',
             'last_name': 'Фамилия',
             'email': 'Email',
             # 'role': 'Роль', # Role might be determined differently now
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -121,12 +131,12 @@ class InterlibraryRequestForm(forms.ModelForm):
     required_by_date = forms.DateField(
         label="Требуется к дате (необязательно)",
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date'})
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     notes = forms.CharField(
         label="Примечания (необязательно)",
         required=False,
-        widget=forms.Textarea(attrs={'rows': 3})
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'})
     )
 
     class Meta:
