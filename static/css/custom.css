@@ -265,16 +265,19 @@ span.select2-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(240, 240, 245, 0.9); /* Slightly greyish overlay */
+    background-color: rgba(255, 255, 255, 0.88); /* Slightly less transparent white */
     z-index: 1060;
-    display: none;
+    display: none; /* Hidden by default */
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
 #loading-overlay.loading-active {
-    display: flex;
+    display: flex; /* Shown when active */
+    opacity: 1;
 }
 
 /* Utility */
@@ -444,182 +447,176 @@ span.select2-container {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(240, 240, 245, 0.9); /* Slightly greyish overlay */
+    background-color: rgba(255, 255, 255, 0.88); /* Slightly less transparent white */
     z-index: 1060;
-    display: none;
+    display: none; /* Hidden by default */
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
 #loading-overlay.loading-active {
-    display: flex;
+    display: flex; /* Shown when active */
+    opacity: 1;
 }
 
 /* Container for the book */
 .book-loader {
-    width: 150px;
-    height: 105px;
+    width: 140px;  /* Adjusted size */
+    height: 100px; /* Adjusted size */
     position: relative;
-    perspective: 1200px;
-    margin-bottom: 25px; /* Space below the book */
-    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.25));
+    perspective: 1000px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
 }
 
-/* The book itself, allowing rotation */
+/* The book structure */
 .book {
     width: 100%;
     height: 100%;
     position: absolute;
     transform-style: preserve-3d;
-    transform: rotateY(-35deg); /* Initial tilt */
+    transform: rotateY(-30deg); /* Initial tilt */
+    transition: transform 0.5s ease;
 }
 
-/* Common styles for book parts */
-.book-part {
+/* Book parts base */
+.book-cover, .book-spine, .book-page {
     position: absolute;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+}
+
+/* Front Cover */
+.book-cover {
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    border-radius: 3px 8px 8px 3px; /* Rounded outer edges */
-    box-sizing: border-box;
-    backface-visibility: hidden; /* Hide back when flipping */
-}
-
-/* Front cover */
-.book-cover {
-    background: linear-gradient(45deg, #3a4148 0%, #505a64 100%);
+    background: linear-gradient(45deg, #4a5158 0%, #6c757d 100%); /* Slightly lighter grey */
+    border-radius: 2px 8px 8px 2px;
     box-shadow: 
-        inset 0 0 10px rgba(0, 0, 0, 0.3), /* Inner shadow */
-        5px 5px 15px rgba(0, 0, 0, 0.15); /* Outer shadow */
-    transform: translateZ(10px); /* Position front cover */
-    z-index: 5; /* Ensure cover is on top initially */
+        inset 0 0 8px rgba(0, 0, 0, 0.25),
+        3px 3px 10px rgba(0, 0, 0, 0.15);
+    transform: translateZ(8px); /* Cover thickness/position */
+    z-index: 10; /* Cover always on top */
 }
 
-.book-cover::before { /* Decorative element on cover */
+.book-cover::before { /* Subtle border detail */
     content: '';
     position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2px 5px 5px 2px;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1px 4px 4px 1px;
 }
 
 /* Spine */
 .book-spine {
-    width: 20px; /* Spine thickness */
-    background: linear-gradient(to right, #2e3338, #41484f);
-    transform: rotateY(-90deg) translateX(-10px); /* Position spine */
+    width: 16px; /* Spine thickness */
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right, #343a40, #495057);
+    transform: rotateY(-90deg) translateX(-8px); /* Position spine relative to center */
     transform-origin: right center;
-    border-radius: 3px 0 0 3px;
-    box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.3);
-    z-index: 0; /* Behind pages */
+    border-radius: 2px 0 0 2px;
+    box-shadow: inset 1px 0 4px rgba(0, 0, 0, 0.2);
+    z-index: 0;
 }
 
-/* Pages */
+/* Page base style */
 .book-page {
-    width: calc(100% - 10px); /* Slightly narrower than cover */
-    height: calc(100% - 10px); /* Slightly shorter than cover */
-    top: 5px;
-    left: 10px;
-    background-color: #f8f4e8; /* Creamy paper color */
+    width: calc(100% - 8px); /* Pages slightly smaller than cover */
+    height: calc(100% - 8px);
+    top: 4px;
+    left: 8px; /* Start pages from the cover edge */
+    background-color: #fdfaf3; /* Warmer paper color */
+    border-radius: 0 5px 5px 0;
     transform-origin: left center;
     transform-style: preserve-3d;
-    border-radius: 0 5px 5px 0;
     box-shadow: 
-        inset -1px 0 1px rgba(0, 0, 0, 0.05),
-        0 1px 2px rgba(0, 0, 0, 0.05);
-    
-    /* Text simulation */
-    background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.08) 70%, transparent 70%), /* Simulating text lines */
-        linear-gradient(90deg, rgba(0,0,0,0.06) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.07) 75%, transparent 75%),
-        linear-gradient(90deg, rgba(0,0,0,0.05) 90%, transparent 90%);
-    background-size: 
-        120px 1px,
-        100px 1px,
-        110px 1px,
-        95px 1px;
-    background-position: 
-        15px 18px,
-        15px 33px,
-        15px 48px,
-        15px 63px,
-        15px 78px; /* Adjusted line positions */
-    background-repeat: repeat-y;
+        inset -1px 0 1px rgba(0, 0, 0, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+        
+    /* Text simulation - using repeating gradients */
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent, 
+        transparent 10px, 
+        rgba(0, 0, 0, 0.04) 10px, 
+        rgba(0, 0, 0, 0.04) 11px /* Thin lines */
+    );
+    background-size: 100% 11px; /* Line height */
+    background-position: 10px 15px; /* Start position */
+    padding: 15px 10px; /* Text margins */
 }
 
-/* Individual page animations */
+/* Specific page animations */
 .book-page.page-1 {
-    animation: flip 3s infinite ease-in-out 0s;
+    animation: flip 2.8s infinite ease-in-out 0s;
     z-index: 3;
 }
 
 .book-page.page-2 {
-    animation: flip 3s infinite ease-in-out 0.2s;
+    animation: flip 2.8s infinite ease-in-out 0.25s;
     z-index: 2;
 }
 
 .book-page.page-3 {
-    animation: flip 3s infinite ease-in-out 0.4s;
+    animation: flip 2.8s infinite ease-in-out 0.5s;
     z-index: 1;
 }
 
-/* The flip animation */
+/* Flipping Animation */
 @keyframes flip {
-    0%, 15% {
+    0%, 10% {
         transform: rotateY(0deg);
-        box-shadow: 
-            inset -1px 0 1px rgba(0, 0, 0, 0.05),
-            0 1px 2px rgba(0, 0, 0, 0.05);
-        background-color: #f8f4e8;
+        box-shadow: inset -1px 0 1px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        background-color: #fdfaf3;
+        z-index: inherit; /* Use assigned z-index */
     }
-    40%, 60% { /* Mid-flip: darker shadow, slightly bent */
-        transform: rotateY(-150deg);
-        box-shadow: 
-            5px 5px 10px rgba(0, 0, 0, 0.2),
-            inset 1px 0 2px rgba(0, 0, 0, 0.1);
-        background-color: #f0eade;
+    40%, 60% {
+        transform: rotateY(-160deg); /* Deeper flip */
+        box-shadow: 5px 3px 10px rgba(0, 0, 0, 0.15), inset 1px 0 1px rgba(0, 0, 0, 0.05);
+        background-color: #f8f3e9; /* Slightly darker during flip */
+        z-index: 15; /* Bring flipping page to front */
     }
-    85%, 100% { /* End-flip: flat against the back */
+    90%, 100% {
         transform: rotateY(-180deg);
-        box-shadow: 
-            -2px 1px 5px rgba(0, 0, 0, 0.1),
-            inset 1px 0 1px rgba(0, 0, 0, 0.05);
-        background-color: #f8f4e8;
-        z-index: 0; /* Move behind others once flipped */
+        box-shadow: -2px 1px 3px rgba(0, 0, 0, 0.1), inset 1px 0 1px rgba(0, 0, 0, 0.04);
+        background-color: #fdfaf3;
+        z-index: 0; /* Send behind after flip */
     }
 }
 
-/* Loading Text Styling */
+/* Loading Text Style */
 #loading-overlay p {
     font-family: "Georgia", serif;
-    margin-top: 1.5rem; /* Closer to the book */
-    color: #343a40; /* Darker grey */
-    font-size: 1.1rem;
-    font-weight: normal;
-    letter-spacing: 0.8px;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+    margin-top: 1rem;
+    color: #495057;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 1px #fff;
 }
 
 #loading-overlay p::before,
 #loading-overlay p::after {
-    content: "~~"; /* Double tilde */
-    color: #6c757d;
-    margin: 0 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    vertical-align: middle;
+    content: "~~";
+    color: #868e96;
+    margin: 0 8px;
+    font-size: 0.9rem;
+    font-weight: normal;
+    vertical-align: baseline;
     display: inline-block;
-    transform: translateY(-1px);
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+    text-shadow: none;
 }
 
-/* Исправления для форм с выпадающими списками */
+/* Keep existing form fixes */
 .select2-container {
     margin-bottom: 1.5rem !important;
 }
