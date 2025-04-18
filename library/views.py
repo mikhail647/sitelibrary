@@ -43,18 +43,19 @@ def generate_report(request):
     # No TTF files needed here
     try:
         # Ensure the standard fonts are mapped correctly for ReportLab's style system
-        pdfmetrics.registerFont(pdfmetrics.Font(font_name))
-        pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold))
-        pdfmetrics.registerFont(pdfmetrics.Font(font_name_italic))
-        pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold_italic))
+        # pdfmetrics.registerFont(pdfmetrics.Font(font_name)) # Removed - Not needed for standard fonts
+        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold)) # Removed
+        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_italic)) # Removed
+        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold_italic)) # Removed
 
+        # Mappings are still useful for styles
         addMapping(font_name, 0, 0, font_name) # Normal
         addMapping(font_name, 1, 0, font_name_bold) # Bold
         addMapping(font_name, 0, 1, font_name_italic) # Italic
         addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic
     except Exception as e:
         # This is unlikely to fail for standard fonts, but good practice
-        print(f"Warning: Could not register standard Times fonts ({e}). PDF might have font issues.")
+        print(f"Warning: Could not map standard Times fonts ({e}). PDF might have font issues.")
         # Fallback to Helvetica if something unexpected happens
         font_name = 'Helvetica'
         font_name_bold = 'Helvetica-Bold'
