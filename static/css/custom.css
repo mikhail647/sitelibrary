@@ -513,18 +513,74 @@ span.select2-container {
 
 /* Основной контейнер книги */
 .book-loader {
-    width: 110px;
-    height: 150px;
     position: relative;
-    perspective: 1500px;
-    margin-bottom: 20px;
-    transform-style: preserve-3d; /* Важно для вложенных 3D */
-    transform: rotateY(-25deg); /* Поворот всего контейнера для лучшего вида */
+    width: 120px;
+    height: 160px;
+    transform-style: preserve-3d;
+    animation: book-float 2s ease-in-out infinite;
 }
 
-/* Скрываем статичную обложку :before, она больше не нужна */
-.book-loader:before {
-    display: none;
+/* Новый корешок книги */
+.book-loader .book-spine {
+    position: absolute;
+    left: 50%;
+    top: 2%;
+    width: 12px;
+    height: 96%;
+    background: #5d4a2f;
+    transform: translateX(-50%) rotateY(90deg);
+    transform-origin: left center;
+    box-shadow: 
+        -3px 0 6px rgba(0, 0, 0, 0.1),
+        inset -2px 0 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+/* Имитация текста на страницах */
+.book-loader-page {
+    position: absolute;
+    /* Добавлены псевдо-элементы для текста */
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        left: 15%;
+        right: 15%;
+        height: 3px;
+        background: #666;
+        filter: brightness(0.9);
+        border-radius: 2px;
+    }
+    
+    &::before {
+        top: 25%;
+        box-shadow: 0 12px #666, 0 24px #666;
+    }
+    
+    &::after {
+        top: 60%;
+        box-shadow: 0 12px #666;
+    }
+}
+
+/* Утолщение существующих линий */
+.book-loader-page:nth-child(1) {
+    &::before {
+        height: 4px;
+        box-shadow: 0 12px #444, 0 24px #444;
+        filter: brightness(0.8);
+    }
+}
+
+/* Заголовок на первой странице */
+.book-loader-page:nth-child(1)::after {
+    content: '';
+    top: 15%;
+    left: 20%;
+    right: 20%;
+    height: 6px;
+    background: #333;
+    box-shadow: none;
+    border-radius: 3px;
 }
 
 /* Задняя обложка (основа) */
@@ -537,182 +593,164 @@ span.select2-container {
     left: 0;
     background: linear-gradient(45deg, #2d3339 0%, #3e464e 100%);
     border-radius: 2px 6px 6px 2px;
-    transform: translateZ(-8px); /* Сдвигаем назад, чтобы корешок поместился */
+    transform: rotateY(-25deg) translateZ(-8px);
     backface-visibility: hidden;
     box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
-    z-index: 0; /* На самом заднем плане */
+    z-index: 0;
     animation: book-float 2.5s ease-in-out infinite;
 }
 
-/* Корешок книги (новый стиль) */
+/* Корешок книги */
 .book-loader .book-spine {
+    content: "";
     position: absolute;
-    width: 16px; /* Ширина корешка */
+    width: 16px;
     height: 100%;
     left: 0;
     top: 0;
-    background: linear-gradient(to right, #262b2f, #343a40, #262b2f); /* Градиент для объема */
-    transform-origin: left center;
-    /* Поворачиваем и выносим вперед относительно контейнера */
-    transform: rotateY(90deg) translateX(-8px);
-    box-shadow: inset -1px 0 4px rgba(0,0,0,0.3); /* Тень для разделения с задней обложкой */
-    z-index: 5; /* Выше задней обложки, но ниже страниц */
+    background: linear-gradient(to right, #262b2f, #343a40);
+    border-radius: 2px 0 0 2px;
+    transform: rotateY(-25deg) rotateY(90deg) translateZ(8px);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
     animation: book-float 2.5s ease-in-out infinite;
-    /* Добавляем золотое тиснение (имитация) */
     background-image: 
-        linear-gradient(to bottom, transparent 15%, #c0a060 16%, #c0a060 18%, transparent 19%, transparent 81%, #c0a060 82%, #c0a060 84%, transparent 85%),
-        linear-gradient(to right, #262b2f, #343a40, #262b2f);
+        linear-gradient(to bottom, 
+            rgba(255,255,255,0) 5%, 
+            rgba(255,255,255,0.1) 50%, 
+            rgba(255,255,255,0) 95%);
 }
 
 /* Общие стили для перелистывающихся страниц */
 .book-loader-page {
     position: absolute;
-    width: 96%; /* Чуть меньше ширины */
-    height: 97%; /* Чуть меньше высоты */
+    width: 96%;
+    height: 97%;
     top: 1.5%;
-    left: 0; /* Теперь крепятся к левому краю (корешку) */
+    right: 2%;
     border-radius: 0 4px 4px 0;
-    transform-origin: left center; /* Трансформация от корешка */
+    transform-origin: left center;
     transform-style: preserve-3d;
     overflow: hidden;
+    transition: box-shadow 0.2s ease-out;
+    background-image: none;
     background-color: #fff;
-    /* Убрано translateZ из базового стиля, будет в анимации */
 }
 
-/* Первая страница (обложка) - Анимация и стили */
-.book-loader-page:nth-child(1) { /* Теперь это первая страница после корешка */
+/* Первая страница (анимируется как обложка) - без текста */
+.book-loader-page:nth-child(1) {
     background: linear-gradient(45deg, #343a40 0%, #495057 80%, #6c757d 100%);
-    box-shadow:
+    box-shadow: 
         2px 2px 5px rgba(0, 0, 0, 0.1),
         inset 0 0 3px rgba(255, 255, 255, 0.05);
     animation: flip-cover 2.5s infinite ease-in-out;
-    z-index: 15; /* Начинает выше */
+    z-index: 5;
 }
 
-/* Вторая страница - Улучшенный текст/заголовки */
+/* Вторая страница - с более толстым текстом */
 .book-loader-page:nth-child(2) {
     background-color: #f8f8f8;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
     animation: flip-page-2 2.5s infinite ease-in-out;
-    z-index: 14;
-    /* Имитация заголовка и текста */
-    background-image:
-        linear-gradient(90deg, rgba(0,0,0,0.15) 0, rgba(0,0,0,0.15) 45%, transparent 45%), /* Заголовок - толстая короткая линия */
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 80%, transparent 80%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 75%, transparent 75%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 65%, transparent 65%);
-    background-size:
-        100% 3px,   /* Толщина заголовка */
-        100% 1.5px, /* Толщина текста */
-        100% 1.5px,
-        100% 1.5px,
-        100% 1.5px;
-    background-position:
-        15% 15px, /* Позиция заголовка */
-        15% 40px, /* Позиции текста */
-        15% 55px,
-        15% 70px,
-        15% 85px;
+    z-index: 4;
+    /* Увеличиваем толщину линии и делаем темнее */
+    background-image: 
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 65%, transparent 65%);
+    background-size: 100% 1.5px; /* Толщина линии 1.5px */
+    background-position: 
+        20px 30px,
+        20px 50px,
+        20px 70px,
+        20px 90px;
     background-repeat: no-repeat;
 }
 
-/* Третья страница - Улучшенный текст/заголовки */
+/* Третья страница - с более толстым текстом */
 .book-loader-page:nth-child(3) {
     background-color: #fdfdfd;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.06);
     animation: flip-page-3 2.5s infinite ease-in-out;
-    z-index: 13;
-     /* Имитация заголовка и текста */
-    background-image:
-        linear-gradient(90deg, rgba(0,0,0,0.15) 0, rgba(0,0,0,0.15) 35%, transparent 35%), /* Заголовок */
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 70%, transparent 70%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 60%, transparent 60%),
-        linear-gradient(90deg, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 75%, transparent 75%);
-    background-size:
-        100% 3px,
-        100% 1.5px,
-        100% 1.5px,
-        100% 1.5px,
-        100% 1.5px;
-    background-position:
-        15% 20px, /* Позиция заголовка */
-        15% 45px,
-        15% 60px,
-        15% 75px,
-        15% 90px;
+    z-index: 3;
+    /* Увеличиваем толщину линии и делаем темнее */
+    background-image: 
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 60%, transparent 60%),
+        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%);
+    background-size: 100% 1.5px; /* Толщина линии 1.5px */
+    background-position: 
+        20px 35px,
+        20px 55px,
+        20px 75px,
+        20px 95px;
     background-repeat: no-repeat;
 }
 
-/* Анимация плавающей книги (применяется к after и spine) */
+/* Анимация плавающей книги */
 @keyframes book-float {
-    0%, 100% { transform: translateY(0) translateZ(var(--translateZ, 0)); }
-    50% { transform: translateY(-4px) translateZ(var(--translateZ, 0)); }
+    0%, 100% { transform: translateY(0) rotateY(-25deg) translateZ(var(--translateZ, 0)); }
+    50% { transform: translateY(-4px) rotateY(-25deg) translateZ(var(--translateZ, 0)); }
 }
-/* Переназначаем переменную translateZ для задней обложки */
-.book-loader:after {
-    --translateZ: -8px;
-}
-/* Корешок не нуждается в translateZ в анимации, т.к. его положение статично относительно контейнера */
 
-
-/* Анимация обложки */
+/* Анимация обложки - еще меньше угол */
 @keyframes flip-cover {
     0%, 10% {
-        transform: rotateY(0deg) translateZ(0px); /* Начинаем на уровне корешка */
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(8px);
         background: linear-gradient(45deg, #343a40 0%, #495057 80%, #6c757d 100%);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1), inset 0 0 3px rgba(255, 255, 255, 0.05);
-        z-index: 15;
+        z-index: 5;
     }
     20%, 25% {
-        transform: rotateY(-90deg) translateZ(0px);
+        transform: rotateY(-25deg) rotateY(-90deg) translateZ(8px);
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2), 0 0 5px rgba(0,0,0,0.1);
-        z-index: 25; /* Выше всех при перевороте */
+        z-index: 15;
     }
     35%, 100% {
-        transform: rotateY(-135deg) translateZ(0px); /* Увеличил угол для лучшего вида */
+        transform: rotateY(-25deg) rotateY(-125deg) translateZ(8px); /* Уменьшен угол */
         background: #555c63;
         box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.15);
-        z-index: 10; /* Ниже следующих страниц в конце */
+        z-index: 1;
     }
 }
 
-/* Анимация второй страницы */
+/* Анимация второй страницы - еще меньше угол */
 @keyframes flip-page-2 {
     0%, 25% {
-        transform: rotateY(0deg) translateZ(-2px); /* Чуть позади обложки */
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(4px);
         box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
-        z-index: 14;
+        z-index: 4;
     }
     35%, 40% {
-        transform: rotateY(-90deg) translateZ(-2px);
+        transform: rotateY(-25deg) rotateY(-90deg) translateZ(4px);
         box-shadow: 8px 5px 15px rgba(0, 0, 0, 0.15);
-        z-index: 24;
+        z-index: 16;
     }
     50%, 100% {
-        transform: rotateY(-130deg) translateZ(-2px); /* Увеличил угол */
+        transform: rotateY(-25deg) rotateY(-120deg) translateZ(4px); /* Уменьшен угол */
         box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 11;
+        z-index: 2;
     }
 }
 
-/* Анимация третьей страницы */
+/* Анимация третьей страницы - еще меньше угол */
 @keyframes flip-page-3 {
     0%, 40% {
-        transform: rotateY(0deg) translateZ(-4px); /* Еще дальше */
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(1px);
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.06);
-        z-index: 13;
+        z-index: 3;
     }
     50%, 55% {
-        transform: rotateY(-90deg) translateZ(-4px);
+        transform: rotateY(-25deg) rotateY(-90deg) translateZ(1px);
         box-shadow: 8px 5px 15px rgba(0, 0, 0, 0.15);
-        z-index: 23;
+        z-index: 17;
     }
     65%, 100% {
-        transform: rotateY(-125deg) translateZ(-4px); /* Увеличил угол */
+        transform: rotateY(-25deg) rotateY(-115deg) translateZ(1px); /* Уменьшен угол */
         box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 12;
+        z-index: 3;
     }
 }
 
