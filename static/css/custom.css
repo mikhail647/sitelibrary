@@ -696,16 +696,19 @@ span.select2-container {
         transform: rotateY(-25deg) rotateY(0deg) translateZ(4px);
         box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
         z-index: 4;
+        background-color: #f8f8f8; /* Видимый фон */
     }
     35%, 40% {
         transform: rotateY(-25deg) rotateY(-90deg) translateZ(4px);
         box-shadow: 8px 5px 15px rgba(0, 0, 0, 0.15);
         z-index: 16;
+        background-color: #f8f8f8; /* Видимый фон */
     }
     50%, 100% {
         transform: rotateY(-25deg) rotateY(-120deg) translateZ(4px); /* Уменьшен угол */
         box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
         z-index: 2;
+        background-color: transparent; /* Делаем фон прозрачным в конце */
     }
 }
 
@@ -715,16 +718,19 @@ span.select2-container {
         transform: rotateY(-25deg) rotateY(0deg) translateZ(1px);
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.06);
         z-index: 3;
+        background-color: #fdfdfd; /* Видимый фон */
     }
     50%, 55% {
         transform: rotateY(-25deg) rotateY(-90deg) translateZ(1px);
         box-shadow: 8px 5px 15px rgba(0, 0, 0, 0.15);
         z-index: 17;
+        background-color: #fdfdfd; /* Видимый фон */
     }
     65%, 100% {
         transform: rotateY(-25deg) rotateY(-115deg) translateZ(1px); /* Уменьшен угол */
         box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
         z-index: 3;
+        background-color: transparent; /* Делаем фон прозрачным в конце */
     }
 }
 
