@@ -12,6 +12,10 @@
             <div class="card-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
+                    {# Add hidden input for request_id if it exists #}
+                    {% if request_id %}
+                        <input type="hidden" name="request_id" value="{{ request_id }}">
+                    {% endif %}
 
                     {# Use Bootstrap form-floating or standard layout #}
                     <div class="mb-3">

@@ -292,44 +292,97 @@ def admin_dashboard(request):
 
 @staff_required
 def issue_book(request):
-    """Handles the book issuing process."""
-    if request.method == 'POST':
-        form = BookLoanForm(request.POST)
-        if form.is_valid():
-            loan = form.save(commit=False)
-            reader = loan.reader
-            copy = loan.copy
+    """Handles the book issuing process, optionally pre-filled from a BookRequest."""
+    book_request = None
+    initial_data = {}
+    copy_queryset = BookCopy.objects.filter(copy_status='available').select_related('book', 'location')
+    request_id = request.GET.get('request_id')
 
-            # --- Permission Checks ---
-            # 1. Check if the reader is allowed to take books home (per-reader setting overrides type)
+    if request_id:
+        try:
+            # Fetch the approved book request
+            book_request = get_object_or_404(BookRequest, pk=request_id, status='approved')
+            # Get the associated reader profile
+            reader_profile = get_object_or_404(LibraryReader, user=book_request.user)
+
+            # Set initial data for the form
+            initial_data = {'reader': reader_profile}
+            # Filter copies for the requested book and location
+            copy_queryset = BookCopy.objects.filter(
+                book=book_request.book,
+                location=book_request.requested_location,
+                copy_status='available'
+            ).select_related('book', 'location')
+
+        except LibraryReader.DoesNotExist:
+            messages.error(request, f"Не найден профиль читателя для пользователя '{book_request.user.username}', связанного с запросом №{request_id}.")
+            return redirect('staff_manage_requests') # Or back to issue_book without prefill?
+        except BookRequest.DoesNotExist:
+             messages.error(request, f"Запрос №{request_id} не найден или не одобрен.")
+             return redirect('staff_manage_requests')
+        except Exception as e:
+            messages.error(request, f"Произошла ошибка при загрузке данных из запроса №{request_id}: {e}")
+            # Log the error e
+            print(f"Error pre-filling issue form from request {request_id}: {e}")
+            return redirect('staff_manage_requests')
+
+    if request.method == 'POST':
+        # Pass initial data if it was set from a GET request with request_id
+        form = BookLoanForm(request.POST, initial=initial_data if not initial_data else None)
+        # Always ensure the copy queryset is potentially filtered if coming from a request
+        form.fields['copy'].queryset = copy_queryset
+        if request_id and initial_data:
+             form.fields['reader'].widget.attrs['disabled'] = True # Keep reader disabled on POST too
+
+        if form.is_valid():
+            # --- Standard Loan Creation Logic (mostly unchanged) ---
+            loan = form.save(commit=False)
+            # If reader was disabled, it won't be in cleaned_data, so get it from initial or fetch again
+            if 'reader' not in form.cleaned_data and initial_data.get('reader'):
+                reader = initial_data['reader']
+            else:
+                reader = form.cleaned_data['reader']
+            copy = form.cleaned_data['copy'] # Copy must be selected
+            loan.reader = reader # Ensure reader is set
+
+            # --- Permission Checks (remain the same) ---
             if not reader.can_take_books_home:
                  messages.error(request, f"Читателю '{reader}' не разрешено брать книги на дом (индивидуальная настройка). Выдача невозможна.")
-                 return render(request, 'staff/issue_book.html', {'form': form})
-            
-            # 2. Check if reader type allows loan (redundant if can_take_books_home is False, but good secondary check)
-            # if not reader.reader_type.can_use_loan:
-            #     messages.error(request, f"Читатель категории '{reader.reader_type}' не может брать книги на абонемент. Выдача невозможна.")
-            #     return render(request, 'staff/issue_book.html', {'form': form})
+                 context = {'form': form, 'request_id': request.POST.get('request_id')}
+                 return render(request, 'staff/issue_book.html', context)
 
-            # 3. Check reader status
             if reader.reader_status != 'active':
                 status_display = dict(LibraryReader.STATUS_CHOICES).get(reader.reader_status, reader.reader_status)
                 messages.error(request, f"Статус читателя: '{status_display}'. Выдача невозможна.")
-                return render(request, 'staff/issue_book.html', {'form': form})
+                context = {'form': form, 'request_id': request.POST.get('request_id')}
+                return render(request, 'staff/issue_book.html', context)
 
-            # 4. Check loan limit
             active_loans_count = BookLoan.objects.filter(reader=reader, loan_status__in=['active', 'overdue']).count()
             if active_loans_count >= reader.reader_type.max_books_allowed:
                 messages.error(request, f"Читатель достиг лимита ({reader.reader_type.max_books_allowed}) активных выдач.")
-                return render(request, 'staff/issue_book.html', {'form': form})
+                context = {'form': form, 'request_id': request.POST.get('request_id')}
+                return render(request, 'staff/issue_book.html', context)
 
-            # 5. Check copy status
             if copy.copy_status != 'available':
                 messages.error(request, f"Экземпляр '{copy}' недоступен для выдачи (статус: {copy.get_copy_status_display()}).")
-                return render(request, 'staff/issue_book.html', {'form': form})
+                # Refresh copy queryset in case status changed
+                current_request_id = request.POST.get('request_id')
+                if current_request_id:
+                    try:
+                        breq = BookRequest.objects.get(pk=current_request_id)
+                        form.fields['copy'].queryset = BookCopy.objects.filter(
+                            book=breq.book,
+                            location=breq.requested_location,
+                            copy_status='available'
+                        ).select_related('book', 'location')
+                    except BookRequest.DoesNotExist:
+                         form.fields['copy'].queryset = BookCopy.objects.filter(copy_status='available').select_related('book', 'location')
+                else:
+                     form.fields['copy'].queryset = BookCopy.objects.filter(copy_status='available').select_related('book', 'location')
+                context = {'form': form, 'request_id': current_request_id}
+                return render(request, 'staff/issue_book.html', context)
             # --- End Permission Checks ---
 
-            # Proceed with loan creation
             loan.location = copy.location
             loan.loan_date = timezone.now().date()
             loan.due_date = loan.loan_date + timedelta(days=reader.reader_type.loan_period_days)
@@ -339,17 +392,61 @@ def issue_book(request):
             copy.copy_status = 'issued'
             copy.save()
 
-            reader_full_name = f"{reader.first_name} {reader.last_name}"
-            if reader.user:
-                reader_full_name = reader.user.get_full_name() or reader.user.username
-            messages.success(request, f"Книга '{copy.book.book_title}' (Инв. №{copy.inventory_number}) успешно выдана читателю {reader_full_name}.")
-            return redirect('staff_active_loans')
+            # --- Update BookRequest if issued from a request ---
+            original_request_id = request.POST.get('request_id')
+            if original_request_id:
+                try:
+                    original_request = BookRequest.objects.get(pk=original_request_id, status='approved')
+                    original_request.status = 'issued'
+                    original_request.loan = loan # Link the loan to the request
+                    original_request.processed_by = request.user
+                    original_request.processed_date = timezone.now()
+                    original_request.save()
+                    messages.success(request, f"Книга '{copy.book.book_title}' успешно выдана читателю {reader} по запросу №{original_request_id}.")
+                except BookRequest.DoesNotExist:
+                    messages.warning(request, f"Книга '{copy.book.book_title}' выдана читателю {reader}, но не удалось обновить исходный запрос №{original_request_id} (не найден или уже обработан).")
+                except Exception as e:
+                    messages.error(request, f"Книга '{copy.book.book_title}' выдана, но произошла ошибка при обновлении запроса №{original_request_id}: {e}")
+                    print(f"Error updating request {original_request_id} after loan {loan.loan_id} creation: {e}")
+            else:
+                 # Standard success message
+                 reader_full_name = f"{reader.first_name} {reader.last_name}"
+                 if reader.user:
+                     reader_full_name = reader.user.get_full_name() or reader.user.username
+                 messages.success(request, f"Книга '{copy.book.book_title}' (Инв. №{copy.inventory_number}) успешно выдана читателю {reader_full_name}.")
+
+            return redirect('staff_active_loans') # Or maybe back to manage_requests?
         else:
             messages.error(request, "Пожалуйста, исправьте ошибки в форме.")
-    else:
-        form = BookLoanForm()
+            # Need to re-apply queryset filter and disabled state if form is invalid on POST from request
+            current_request_id = request.POST.get('request_id')
+            if current_request_id:
+                 try:
+                     breq = BookRequest.objects.get(pk=current_request_id)
+                     reader_prof = LibraryReader.objects.get(user=breq.user)
+                     form.fields['copy'].queryset = BookCopy.objects.filter(
+                         book=breq.book, location=breq.requested_location, copy_status='available'
+                     ).select_related('book', 'location')
+                     form.fields['reader'].initial = reader_prof # Re-set initial value for display
+                     form.fields['reader'].widget.attrs['disabled'] = True
+                 except (BookRequest.DoesNotExist, LibraryReader.DoesNotExist):
+                     pass # Keep standard queryset, don't disable
+                 context = {'form': form, 'request_id': current_request_id}
+                 return render(request, 'staff/issue_book.html', context)
 
-    return render(request, 'staff/issue_book.html', {'form': form})
+    else: # GET request
+        # If request_id was processed, create form with initial data and filtered queryset
+        if request_id and initial_data:
+            form = BookLoanForm(initial=initial_data)
+            form.fields['copy'].queryset = copy_queryset
+            form.fields['reader'].widget.attrs['disabled'] = True # Disable reader selection
+        else:
+            # Standard GET request, create an empty form with default querysets
+            form = BookLoanForm()
+            request_id = None # Ensure request_id is None if not passed or invalid
+
+    context = {'form': form, 'request_id': request_id} # Pass request_id to template for hidden input
+    return render(request, 'staff/issue_book.html', context)
 
 @staff_required
 def active_loans(request):
