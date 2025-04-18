@@ -522,10 +522,28 @@ span.select2-container {
     transform: rotateX(10deg);
 }
 
-/* Скрываем статичную обложку :before */
+/* Корешок книги (используем :before) */
 .book-loader:before {
-    display: none;
+    content: "";
+    position: absolute;
+    width: 16px; /* Ширина корешка */
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right, #262b2f, #343a40 80%); /* Градиент корешка */
+    border-radius: 2px 0 0 2px;
+    transform-origin: left center;
+    transform: rotateY(-25deg) translateZ(8px); /* Начальное положение как у передней обложки */
+    backface-visibility: hidden;
+    box-shadow: inset 1px 0 3px rgba(0, 0, 0, 0.2), -1px 0 2px rgba(255,255,255,0.05);
+    z-index: 6; /* Выше передней обложки, но ниже страниц */
+    animation: flip-spine 2.5s infinite ease-in-out; /* Отдельная анимация для корешка */
 }
+
+/* Скрываем статичную обложку :before */
+/* .book-loader:before {
+    display: none;
+} */
 
 /* Задняя обложка (основа) */
 .book-loader:after {
@@ -542,6 +560,8 @@ span.select2-container {
     box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
     z-index: 0;
     animation: book-float 2.5s ease-in-out infinite;
+    background-image: none;
+    background-color: #fff;
 }
 
 /* Корешок книги */
@@ -584,52 +604,60 @@ span.select2-container {
 /* Первая страница (анимируется как обложка) - без текста */
 .book-loader-page:nth-child(1) {
     background: linear-gradient(45deg, #343a40 0%, #495057 80%, #6c757d 100%);
-    box-shadow: 
+    box-shadow:
         2px 2px 5px rgba(0, 0, 0, 0.1),
         inset 0 0 3px rgba(255, 255, 255, 0.05);
     animation: flip-cover 2.5s infinite ease-in-out;
     z-index: 5;
 }
 
-/* Вторая страница - с более толстым текстом */
+/* Вторая страница - имитация заголовка и более толстый текст */
 .book-loader-page:nth-child(2) {
     background-color: #f8f8f8;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
     animation: flip-page-2 2.5s infinite ease-in-out;
     z-index: 4;
-    /* Увеличиваем толщину линии и делаем темнее */
-    background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 80%, transparent 80%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 65%, transparent 65%);
-    background-size: 100% 1.5px; /* Толщина линии 1.5px */
-    background-position: 
-        20px 30px,
-        20px 50px,
+    background-image:
+        /* Имитация заголовка (толще, темнее) */
+        linear-gradient(90deg, rgba(0,0,0,0.15) 0, rgba(0,0,0,0.15) 65%, transparent 65%),
+        /* Утолщенные темные линии текста */
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 80%, transparent 80%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 75%, transparent 75%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 65%, transparent 65%);
+    /* Толщина линии 2px, заголовок 4px */
+    background-size: 100% 4px, 100% 2px, 100% 2px, 100% 2px, 100% 2px;
+    background-position:
+        20px 20px, /* Позиция заголовка */
+        20px 50px, /* Позиции текста */
         20px 70px,
-        20px 90px;
+        20px 90px,
+        20px 110px;
     background-repeat: no-repeat;
 }
 
-/* Третья страница - с более толстым текстом */
+/* Третья страница - имитация заголовка и более толстый текст */
 .book-loader-page:nth-child(3) {
     background-color: #fdfdfd;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.06);
     animation: flip-page-3 2.5s infinite ease-in-out;
     z-index: 3;
-    /* Увеличиваем толщину линии и делаем темнее */
-    background-image: 
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 70%, transparent 70%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 85%, transparent 85%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 60%, transparent 60%),
-        linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 75%, transparent 75%);
-    background-size: 100% 1.5px; /* Толщина линии 1.5px */
-    background-position: 
-        20px 35px,
-        20px 55px,
+    background-image:
+        /* Имитация заголовка (толще, темнее) */
+        linear-gradient(90deg, rgba(0,0,0,0.15) 0, rgba(0,0,0,0.15) 75%, transparent 75%),
+        /* Утолщенные темные линии текста */
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 70%, transparent 70%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 85%, transparent 85%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 60%, transparent 60%),
+        linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 75%, transparent 75%);
+    /* Толщина линии 2px, заголовок 4px */
+    background-size: 100% 4px, 100% 2px, 100% 2px, 100% 2px, 100% 2px;
+    background-position:
+        20px 25px, /* Позиция заголовка */
+        20px 55px, /* Позиции текста */
         20px 75px,
-        20px 95px;
+        20px 95px,
+        20px 115px;
     background-repeat: no-repeat;
 }
 
@@ -695,6 +723,24 @@ span.select2-container {
         transform: rotateY(-25deg) rotateY(-115deg) translateZ(1px); /* Уменьшен угол */
         box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
         z-index: 3;
+    }
+}
+
+/* Анимация для корешка - следует за передней обложкой */
+@keyframes flip-spine {
+    0%, 10% {
+        transform: rotateY(-25deg) rotateY(0deg) translateZ(8px);
+        z-index: 6;
+    }
+    20%, 25% {
+        /* Корешок почти не виден при 90 градусах обложки */
+        transform: rotateY(-25deg) rotateY(-85deg) translateZ(8px);
+        z-index: 14; /* Ниже переворачивающейся обложки */
+    }
+    35%, 100% {
+        /* Положение соответствует углу -125 градусов обложки */
+        transform: rotateY(-25deg) rotateY(-125deg) translateZ(8px);
+        z-index: 0; /* Сзади всего */
     }
 }
 
