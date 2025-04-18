@@ -160,99 +160,145 @@ class BookCopyAdmin(admin.ModelAdmin):
     def mark_lost(self, request, queryset):
         fine_created_count = 0
         already_lost_count = 0
+        updated_count = 0
+        cost_missing_count = 0
+        no_loan_found_count = 0
+
         for copy in queryset:
             if copy.copy_status == 'lost':
                 already_lost_count += 1
                 continue
+
+            # --- Check cost first ---
             if copy.cost is None or copy.cost <= 0:
-                self.message_user(request, f"Ошибка: Нельзя отметить утерянной копию '{copy}' без указания стоимости.", level='error')
-                continue
+                # Mark as lost even without cost, but prevent fine creation
+                copy.copy_status = 'lost'
+                copy.save()
+                updated_count += 1
+                cost_missing_count += 1
+                # Find active loan *only* to update its status if it exists
+                active_loan = BookLoan.objects.filter(copy=copy, loan_status__in=['active', 'overdue']).first()
+                if active_loan:
+                    active_loan.loan_status = 'lost'
+                    active_loan.save()
+                continue # Skip fine creation
 
-            active_loan = BookLoan.objects.filter(copy=copy, loan_status__in=['active', 'overdue']).first()
-            reader = active_loan.reader if active_loan else None
-
+            # --- Cost exists, proceed with normal logic ---
             copy.copy_status = 'lost'
             copy.save()
+            updated_count += 1
 
-            if reader:
-                fine_amount = copy.cost * 10
+            active_loan = BookLoan.objects.filter(copy=copy, loan_status__in=['active', 'overdue']).first()
+
+            if active_loan and active_loan.reader:
+                fine_amount = copy.cost * 10 # 10x fine as per ТЗ
                 LibraryFine.objects.create(
-                    reader=reader,
+                    reader=active_loan.reader,
                     loan=active_loan,
                     fine_amount=fine_amount,
                     fine_reason='lost',
                     fine_status='pending',
                     notes=f"Штраф за утерю книги '{copy.book.book_title}' (Инв. №: {copy.inventory_number})"
                 )
-                if active_loan:
-                     active_loan.loan_status = 'lost'
-                     active_loan.save()
+                active_loan.loan_status = 'lost'
+                active_loan.save()
                 fine_created_count += 1
             else:
-                self.message_user(request, f"Копия '{copy}' отмечена утерянной, но активной выдачи не найдено. Штраф не создан.", level='warning')
+                # Copy marked lost, cost exists, but no active loan found
+                no_loan_found_count += 1
 
-        message = f"{queryset.count() - already_lost_count} копий отмечено как утерянные." 
+        message_parts = []
+        if updated_count > 0:
+            message_parts.append(f"{updated_count} копий отмечено как утерянные.")
         if fine_created_count > 0:
-            message += f" Создано {fine_created_count} штрафов."
+            message_parts.append(f"Создано {fine_created_count} штрафов (10x стоимость).")
+        if cost_missing_count > 0:
+            message_parts.append(f"{cost_missing_count} копий утеряно, но штраф не создан (стоимость не указана).")
+        if no_loan_found_count > 0 and cost_missing_count == 0: # Avoid double reporting if cost was missing
+             message_parts.append(f"{no_loan_found_count} копий утеряно без активной выдачи (штраф не создан).")
         if already_lost_count > 0:
-            message += f" {already_lost_count} копий уже были утеряны."
-        self.message_user(request, message)
-    mark_lost.short_description = "Отметить утерянным (+ штраф 10x, если есть активная выдача)"
+            message_parts.append(f"{already_lost_count} копий уже были утеряны.")
+        
+        if not message_parts: # Handle case where only already lost items were selected
+             message_parts.append("Не выбрано копий для изменения статуса на 'утерянный'.")
+             
+        self.message_user(request, " ".join(message_parts))
+    mark_lost.short_description = "Отметить утерянным (+ штраф 10x, если есть стоимость и активная выдача)"
 
     def mark_damaged(self, request, queryset):
         fine_created_count = 0
         already_damaged_count = 0
         updated_count = 0
         cost_missing_count = 0
+        no_loan_found_count = 0
 
         for copy in queryset:
             if copy.copy_status == 'damaged':
                 already_damaged_count += 1
                 continue
-            if copy.cost is None or copy.cost <= 0:
-                copy.copy_status = 'damaged'
-                copy.save()
-                updated_count += 1
-                cost_missing_count += 1
-                continue
 
+            # Mark damaged regardless of cost or loan
             copy.copy_status = 'damaged'
             copy.save()
             updated_count += 1
 
-            fine_amount = copy.cost * Decimal('0.5')
+            # Check if cost allows fine creation
+            if copy.cost is None or copy.cost <= 0:
+                cost_missing_count += 1
+                continue # Skip fine creation if no cost
 
+            # Cost exists, try to find loan and reader
+            fine_amount = copy.cost * Decimal('0.5') # 50% fine for damage
             active_loan = BookLoan.objects.filter(copy=copy, loan_status__in=['active', 'overdue']).first()
-            reader = active_loan.reader if active_loan else None
 
-            if reader:
+            if active_loan and active_loan.reader:
                 LibraryFine.objects.create(
-                    reader=reader,
-                    loan=active_loan,
+                    reader=active_loan.reader,
+                    loan=active_loan, # Link fine to the loan
                     fine_amount=fine_amount,
                     fine_reason='damaged',
                     fine_status='pending',
                     notes=f"Штраф за повреждение книги '{copy.book.book_title}' (Инв. №: {copy.inventory_number})"
                 )
-                if active_loan:
-                    pass
+                # Do NOT change loan status for damage, book might still be usable/returned
+                # if active_loan: # This check is redundant here
+                #    pass
                 fine_created_count += 1
             else:
-                pass
+                # Damaged, cost exists, but no active loan
+                no_loan_found_count += 1
 
-        message = f"{updated_count} копий отмечено как поврежденные." 
+        message_parts = []
+        if updated_count > 0:
+             message_parts.append(f"{updated_count} копий отмечено как поврежденные.")
         if fine_created_count > 0:
-            message += f" Создано {fine_created_count} штрафов (50% стоимости)."
+             message_parts.append(f"Создано {fine_created_count} штрафов (50% стоимости).")
         if cost_missing_count > 0:
-            message += f" {cost_missing_count} копий повреждено, но штраф не создан (стоимость не указана)."
+             message_parts.append(f"{cost_missing_count} копий повреждено, но штраф не создан (стоимость не указана).")
+        if no_loan_found_count > 0 and cost_missing_count == 0: # Avoid double reporting
+            message_parts.append(f"{no_loan_found_count} копий повреждено без активной выдачи (штраф не создан).")
         if already_damaged_count > 0:
-            message += f" {already_damaged_count} копий уже были повреждены."
-        self.message_user(request, message)
+             message_parts.append(f"{already_damaged_count} копий уже были повреждены.")
+
+        if not message_parts: # Handle case where only already damaged items were selected
+             message_parts.append("Не выбрано копий для изменения статуса на 'поврежденный'.")
+             
+        self.message_user(request, " ".join(message_parts))
     mark_damaged.short_description = "Отметить поврежденным (+ штраф 50%, если есть стоимость и активная выдача)"
 
     def mark_written_off(self, request, queryset):
-        updated_count = queryset.update(copy_status='written_off')
+        # Check if copy is currently issued before writing off
+        issued_copies = queryset.filter(copy_status='issued')
+        if issued_copies.exists():
+             inv_numbers = ", ".join([c.inventory_number for c in issued_copies])
+             self.message_user(request, f"Ошибка: Нельзя списать выданные экземпляры ({inv_numbers}). Сначала верните их.", level='error')
+             return # Stop the action
+
+        # Proceed with writing off only non-issued copies
+        write_off_queryset = queryset.exclude(copy_status='issued')
+        updated_count = write_off_queryset.update(copy_status='written_off')
         self.message_user(request, f"{updated_count} копий отмечено как списанные.")
+    mark_written_off.short_description = "Отметить списанным (нельзя списать выданные)"
 
 @admin.register(BookLoan)
 class BookLoanAdmin(admin.ModelAdmin):

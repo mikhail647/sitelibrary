@@ -27,64 +27,76 @@ from django.db import transaction
 
 @admin_required
 def generate_report(request):
-    """Generates a PDF report with enhanced library statistics and Cyrillic support."""
+    """Generates a PDF report with enhanced library statistics and Cyrillic support using Times New Roman."""
     response = HttpResponse(content_type='application/pdf')
     filename = f"library_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
-    # --- Font Setup for Cyrillic ---
-    # Use a common font likely to support Cyrillic (ensure it's installed or provide a path)
-    # Option 1: Use a built-in font (less reliable for Cyrillic usually)
-    # font_name = 'Helvetica' 
-    # Option 2: Register a TTF font (more reliable if the font file exists)
-    # Make sure a font like DejaVuSans.ttf or another Cyrillic-supporting TTF is accessible
+    # --- Font Setup for Cyrillic using Standard Times New Roman ---
+    # ReportLab has built-in support for standard PostScript fonts like Times New Roman
+    font_name = 'Times-Roman'
+    font_name_bold = 'Times-Bold'
+    font_name_italic = 'Times-Italic'
+    font_name_bold_italic = 'Times-BoldItalic'
+
+    # Registering standard fonts isn't strictly necessary but ensures mappings work
+    # No TTF files needed here
     try:
-        # Attempt to register DejaVuSans (common on Linux, might need install/path on Windows)
-        # If this fails, reportlab might default back, or you might need to provide a direct path
-        # pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
-        # Using Arial as a common fallback often available on Windows
-        # Note: Ensure Arial IS installed on the server running this code.
-        # You might need to provide the full path e.g., 'C:/Windows/Fonts/arial.ttf'
-        # For cross-platform compatibility, bundling a font (like DejaVu) is best.
-        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf')) # Assuming arial.ttf is findable
-        font_name = 'Arial'
-        # Mapping might be needed for standard fonts
-        addMapping('Arial', 0, 0, 'Arial') # Normal
-        addMapping('Arial', 1, 0, 'Arial-Bold') # Bold
-        addMapping('Arial', 0, 1, 'Arial-Italic') # Italic
-        addMapping('Arial', 1, 1, 'Arial-BoldItalic') # BoldItalic
+        # Ensure the standard fonts are mapped correctly for ReportLab's style system
+        pdfmetrics.registerFont(pdfmetrics.Font(font_name))
+        pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold))
+        pdfmetrics.registerFont(pdfmetrics.Font(font_name_italic))
+        pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold_italic))
+
+        addMapping(font_name, 0, 0, font_name) # Normal
+        addMapping(font_name, 1, 0, font_name_bold) # Bold
+        addMapping(font_name, 0, 1, font_name_italic) # Italic
+        addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic
     except Exception as e:
-        print(f"Warning: Could not register Arial font ({e}). PDF might not show Cyrillic correctly.")
-        font_name = 'Helvetica' # Fallback font
+        # This is unlikely to fail for standard fonts, but good practice
+        print(f"Warning: Could not register standard Times fonts ({e}). PDF might have font issues.")
+        # Fallback to Helvetica if something unexpected happens
+        font_name = 'Helvetica'
+        font_name_bold = 'Helvetica-Bold'
+        font_name_italic = 'Helvetica-Oblique'
+        font_name_bold_italic = 'Helvetica-BoldOblique'
+        addMapping('Helvetica', 0, 0, font_name)
+        addMapping('Helvetica', 1, 0, font_name_bold)
+        addMapping('Helvetica', 0, 1, font_name_italic)
+        addMapping('Helvetica', 1, 1, font_name_bold_italic)
 
     # --- Styles using the registered font ---
     styles = getSampleStyleSheet()
-    styles['h1'].fontName = font_name
-    styles['h2'].fontName = font_name
-    styles['h3'].fontName = font_name
+    # Update styles to use the Times New Roman font names
+    styles['h1'].fontName = font_name_bold
+    styles['h2'].fontName = font_name_bold
+    styles['h3'].fontName = font_name_bold
     styles['Normal'].fontName = font_name
+    styles['Bullet'].fontName = font_name
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     story = []
 
+    # Use styles defined above
     title_style = styles['h1']
-    title_style.alignment = 1
+    title_style.alignment = 1 # Center align
     story.append(Paragraph(f"Отчет библиотеки по состоянию на {datetime.now().strftime('%Y-%m-%d %H:%M')}", title_style))
     story.append(Spacer(1, 0.3*inch))
 
     h2_style = styles['h2']
     h3_style = styles['h3']
     normal_style = styles['Normal']
-    # Base table style
+
+    # Updated base table style using the font name
     base_table_style = [('GRID', (0,0), (-1,-1), 1, colors.darkgrey),
                         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-                        ('FONTNAME', (0,0), (-1,-1), font_name)] # Apply font to all cells
-    # Header specific style
+                        ('FONTNAME', (0,0), (-1,-1), font_name)] # Apply normal font to all cells
+    # Header specific style using bold font
     table_header_style = TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.grey),
         ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
         ('ALIGN', (0,0), (-1,0), 'CENTER'),
-        # ('FONTNAME', (0,0), (-1,0), font_name_bold), # Need to register bold variant if needed
+        ('FONTNAME', (0,0), (-1,0), font_name_bold), # Use bold font for header
         ('BOTTOMPADDING', (0,0), (-1,0), 10),
     ])
 
