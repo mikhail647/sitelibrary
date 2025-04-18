@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils import timezone
 from django.utils.html import format_html
+from django.urls import reverse
 from decimal import Decimal
 from .models import (
     CustomUser, BookCatalog, BookAuthor, BookAuthorRelation, BookCopy,
