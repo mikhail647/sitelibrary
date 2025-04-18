@@ -154,7 +154,7 @@ class BookCopyAdmin(admin.ModelAdmin):
     list_filter = ('copy_status', 'location')
     search_fields = ('inventory_number', 'book__book_title', 'book__isbn')
     list_select_related = ('book', 'location')
-    list_editable = ('copy_status', 'cost')
+    list_editable = ('copy_status',)
     actions = ['mark_lost', 'mark_damaged', 'mark_written_off']
 
     def mark_lost(self, request, queryset):
