@@ -179,7 +179,7 @@ class BookCopyAdmin(admin.ModelAdmin):
     search_fields = ('inventory_number', 'book__book_title', 'book__isbn', 'location__location_name')
     list_select_related = ('book', 'location')
     list_editable = ('copy_status', 'cost', 'location') # Add location, be careful with cost
-    actions = ['mark_lost', 'mark_damaged', 'mark_written_off']
+    actions = ['mark_lost', 'mark_damaged']
     raw_id_fields = ('book', 'location')
     ordering = ('-copy_id',)
     readonly_fields = ('copy_id',)
@@ -323,20 +323,6 @@ class BookCopyAdmin(admin.ModelAdmin):
         self.message_user(request, " ".join(message_parts))
     mark_damaged.short_description = "Отметить поврежденным (+ штраф 50%%, если есть стоимость и активная выдача)"
 
-    def mark_written_off(self, request, queryset):
-        # Check if copy is currently issued before writing off
-        issued_copies = queryset.filter(copy_status='issued')
-        if issued_copies.exists():
-             inv_numbers = ", ".join([c.inventory_number for c in issued_copies])
-             self.message_user(request, f"Ошибка: Нельзя списать выданные экземпляры ({inv_numbers}). Сначала верните их.", level='error')
-             return # Stop the action
-
-        # Proceed with writing off only non-issued copies
-        write_off_queryset = queryset.exclude(copy_status='issued')
-        updated_count = write_off_queryset.update(copy_status='written_off')
-        self.message_user(request, f"{updated_count} копий отмечено как списанные.")
-    mark_written_off.short_description = "Отметить списанным (нельзя списать выданные)"
-
 @admin.register(BookLoan)
 class BookLoanAdmin(admin.ModelAdmin):
     list_display = ('loan_id', 'reader_link', 'copy_link', 'location', 'loan_date', 'due_date', 'return_date', 'loan_status')
@@ -365,12 +351,12 @@ class BookLoanAdmin(admin.ModelAdmin):
 
 @admin.register(LibraryFine)
 class LibraryFineAdmin(admin.ModelAdmin):
-    list_display = ('fine_id', 'reader_link', 'loan_link', 'fine_amount', 'fine_reason', 'fine_date', 'fine_status', 'notes')
+    list_display = ('fine_id', 'reader_link', 'loan_link', 'fine_amount', 'fine_reason', 'fine_date', 'fine_status')
     list_filter = ('fine_status', 'fine_reason', 'fine_date', 'reader__reader_type')
     search_fields = ('fine_id', 'reader__last_name', 'reader__first_name', 'reader__library_card_number', 'loan__loan_id', 'request__request_id')
     list_select_related = ('reader', 'loan', 'request', 'reader__user')
     raw_id_fields = ('reader', 'loan', 'request')
-    list_editable = ('fine_status', 'fine_amount', 'notes')
+    list_editable = ('fine_status', 'fine_amount')
     date_hierarchy = 'fine_date'
     ordering = ('-fine_date',)
     readonly_fields = ('fine_id', 'fine_date')

@@ -7,13 +7,13 @@ CREATE TABLE custom_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     password VARCHAR(128) NOT NULL,
     last_login DATETIME(6) NULL,
-    is_superuser TINYINT(1) NOT NULL,
+    is_superuser TINYINT NOT NULL,
     username VARCHAR(150) UNIQUE NOT NULL,
     first_name VARCHAR(150) NOT NULL,
     last_name VARCHAR(150) NOT NULL,
     email VARCHAR(254) NOT NULL,
-    is_staff TINYINT(1) NOT NULL,
-    is_active TINYINT(1) NOT NULL,
+    is_staff TINYINT NOT NULL,
+    is_active TINYINT NOT NULL,
     date_joined DATETIME(6) NOT NULL,
     role VARCHAR(10) NOT NULL DEFAULT 'user' -- Добавлено поле роли
 );

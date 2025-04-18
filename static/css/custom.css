@@ -51,11 +51,16 @@ a:hover {
     padding-top: 0.75rem; /* Add padding for spacing */
     padding-bottom: 0.75rem;
     border-top: 3px solid transparent; /* Add transparent top border for spacing active */
+    /* Убираем стандартное подчеркивание, т.к. будем управлять цветом */
+    text-decoration-color: transparent;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out; /* Добавим transition */
 }
 
 .navbar-dark .navbar-nav .nav-link:hover,
 .navbar-dark .navbar-nav .nav-link:focus {
     color: #fff;
+    text-decoration: underline;
+    text-decoration-color: #fff; /* Белое подчеркивание при наведении */
 }
 
 /* Style for the ACTIVE link */

@@ -109,11 +109,11 @@ class LibraryReader(models.Model):
     STATUS_CHOICES = (
         ('active', 'Активен'),
         ('suspended', 'Приостановлен'),
-        ('inactive', 'Неактивен'),
+        ('expelled', 'Исключен'),
     )
 
     reader_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.PROTECT, null=True, blank=True, related_name='library_profile', db_column='user_id')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='library_profile', db_column='user_id')
     reader_type = models.ForeignKey(ReaderType, on_delete=models.PROTECT, verbose_name="Тип читателя", db_column='reader_type_id')
     first_name = models.CharField(max_length=50, verbose_name="Имя")
     last_name = models.CharField(max_length=50, verbose_name="Фамилия")
@@ -265,7 +265,6 @@ class BookCopy(models.Model):
         ('issued', 'Выдан'),
         ('lost', 'Утерян'),
         ('damaged', 'Поврежден'),
-        ('written_off', 'Списан'),
     )
 
     copy_id = models.AutoField(primary_key=True)
@@ -362,7 +361,6 @@ class LibraryFine(models.Model):
     fine_date = models.DateField(default=timezone.now, verbose_name="Дата штрафа")
     fine_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name="Статус штрафа")
     fine_reason = models.CharField(max_length=10, choices=REASON_CHOICES, verbose_name="Причина штрафа")
-    notes = models.TextField(blank=True, null=True, verbose_name="Примечания")
 
     def __str__(self):
         return f"Штраф №{self.fine_id} для {self.reader.last_name} ({self.get_fine_reason_display()})"
