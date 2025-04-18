@@ -24,51 +24,59 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.fonts import addMapping
 from django.db import transaction
+from django.conf import settings # Import settings
 
 @admin_required
 def generate_report(request):
-    """Generates a PDF report with enhanced library statistics and Cyrillic support using Times New Roman."""
+    """Generates a PDF report with enhanced library statistics and Cyrillic support using embedded Times New Roman font."""
     response = HttpResponse(content_type='application/pdf')
     filename = f"library_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
-    # --- Font Setup for Cyrillic using Standard Times New Roman ---
-    # ReportLab has built-in support for standard PostScript fonts like Times New Roman
-    font_name = 'Times-Roman'
-    font_name_bold = 'Times-Bold'
-    font_name_italic = 'Times-Italic'
-    font_name_bold_italic = 'Times-BoldItalic'
+    # --- Font Setup for Cyrillic using embedded Times New Roman TTF + standard variants ---
+    font_name = 'TimesNewRomanPSMT' # Custom name for your TTF
+    font_name_bold = 'Times-Bold' # Standard PDF font name
+    font_name_italic = 'Times-Italic' # Standard PDF font name
+    font_name_bold_italic = 'Times-BoldItalic' # Standard PDF font name
 
-    # Registering standard fonts isn't strictly necessary but ensures mappings work
-    # No TTF files needed here
+    # Path to your uploaded regular Times New Roman TTF
+    font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanpsmt.ttf')
+    # No separate bold path needed if using standard Times-Bold
+
+    registered_successfully = False
     try:
-        # Ensure the standard fonts are mapped correctly for ReportLab's style system
-        # pdfmetrics.registerFont(pdfmetrics.Font(font_name)) # Removed - Not needed for standard fonts
-        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold)) # Removed
-        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_italic)) # Removed
-        # pdfmetrics.registerFont(pdfmetrics.Font(font_name_bold_italic)) # Removed
+        # Check if the base TTF file exists
+        if os.path.exists(font_path):
+            # Register only the base TTF file you provided
+            pdfmetrics.registerFont(TTFont(font_name, font_path))
 
-        # Mappings are still useful for styles
-        addMapping(font_name, 0, 0, font_name) # Normal
-        addMapping(font_name, 1, 0, font_name_bold) # Bold
-        addMapping(font_name, 0, 1, font_name_italic) # Italic
-        addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic
+            # Map the base font name to the standard bold/italic variants
+            addMapping(font_name, 0, 0, font_name) # Normal -> TimesNewRomanPSMT (your TTF)
+            addMapping(font_name, 1, 0, font_name_bold) # Bold -> Times-Bold (standard)
+            addMapping(font_name, 0, 1, font_name_italic) # Italic -> Times-Italic (standard)
+            addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Times-BoldItalic (standard)
+            registered_successfully = True
+            print(f"Successfully registered {font_name} font from {font_path}")
+        else:
+            print(f"Warning: Font file not found at {font_path}. Falling back to Helvetica.")
+
     except Exception as e:
-        # This is unlikely to fail for standard fonts, but good practice
-        print(f"Warning: Could not map standard Times fonts ({e}). PDF might have font issues.")
-        # Fallback to Helvetica if something unexpected happens
+        print(f"Warning: Could not register {font_name} font ({e}). Falling back to Helvetica.")
+
+    # Fallback if TimesNewRomanPSMT registration failed
+    if not registered_successfully:
         font_name = 'Helvetica'
         font_name_bold = 'Helvetica-Bold'
-        font_name_italic = 'Helvetica-Oblique'
-        font_name_bold_italic = 'Helvetica-BoldOblique'
-        addMapping('Helvetica', 0, 0, font_name)
-        addMapping('Helvetica', 1, 0, font_name_bold)
-        addMapping('Helvetica', 0, 1, font_name_italic)
-        addMapping('Helvetica', 1, 1, font_name_bold_italic)
+        # Ensure base Helvetica styles are used
+        addMapping('Helvetica', 0, 0, 'Helvetica')
+        addMapping('Helvetica', 1, 0, 'Helvetica-Bold')
+        addMapping('Helvetica', 0, 1, 'Helvetica-Oblique')
+        addMapping('Helvetica', 1, 1, 'Helvetica-BoldOblique')
 
-    # --- Styles using the registered font ---
+
+    # --- Styles using the registered font (TimesNewRomanPSMT or Helvetica fallback) ---
     styles = getSampleStyleSheet()
-    # Update styles to use the Times New Roman font names
+    # Use the standard bold name for headers, your TTF name for normal text
     styles['h1'].fontName = font_name_bold
     styles['h2'].fontName = font_name_bold
     styles['h3'].fontName = font_name_bold
