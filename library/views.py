@@ -28,64 +28,69 @@ from django.conf import settings # Import settings
 
 @admin_required
 def generate_report(request):
-    """Generates a PDF report with enhanced library statistics and Cyrillic support using embedded Times New Roman font."""
+    """Generates a PDF report with enhanced library statistics and Cyrillic support using embedded Times New Roman fonts."""
     response = HttpResponse(content_type='application/pdf')
     filename = f"library_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
-    # --- Font Setup for Cyrillic using embedded Times New Roman TTF + standard variants ---
-    font_name = 'TimesNewRomanPSMT' # Custom name for your TTF
+    # --- Font Setup for Cyrillic using embedded TTF + standard variants ---
+    font_name = 'TimesNewRomanPSMT' # Custom name for your regular TTF
+    font_name_italic = 'TimesNewRomanPSMT-Italic' # Custom name for your italic TTF
     font_name_bold = 'Times-Bold' # Standard PDF font name
-    font_name_italic = 'Times-Italic' # Standard PDF font name
     font_name_bold_italic = 'Times-BoldItalic' # Standard PDF font name
 
-    # Path to your uploaded regular Times New Roman TTF
+    # Paths to your uploaded TTF files
     font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanpsmt.ttf')
-    # No separate bold path needed if using standard Times-Bold
+    font_path_italic = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'timesnewromanps_italicmt.ttf')
 
     # --- DEBUGGING --- 
     print(f"[PDF Report] Attempting to load font from: {font_path}")
     font_exists = os.path.exists(font_path)
     print(f"[PDF Report] Font file exists at path: {font_exists}")
+    print(f"[PDF Report] Attempting to load italic font from: {font_path_italic}")
+    font_italic_exists = os.path.exists(font_path_italic)
+    print(f"[PDF Report] Italic font file exists at path: {font_italic_exists}")
     # --- END DEBUGGING ---
 
-    # registered_successfully = False # Temporarily removed for debugging
+    registered_successfully = False
     try:
-        # Check if the base TTF file exists
-        if font_exists: # Use the checked variable
-            # Register only the base TTF file you provided
+        # Check if the regular AND italic TTF files exist
+        if font_exists and font_italic_exists:
+            # Register the TTF files you provided
             pdfmetrics.registerFont(TTFont(font_name, font_path))
+            pdfmetrics.registerFont(TTFont(font_name_italic, font_path_italic))
 
-            # Map the base font name to the standard bold/italic variants
-            addMapping(font_name, 0, 0, font_name) # Normal -> TimesNewRomanPSMT (your TTF)
-            addMapping(font_name, 1, 0, font_name_bold) # Bold -> Times-Bold (standard)
-            addMapping(font_name, 0, 1, font_name_italic) # Italic -> Times-Italic (standard)
-            addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Times-BoldItalic (standard)
-            # registered_successfully = True # Temporarily removed for debugging
-            print(f"[PDF Report] Successfully registered {font_name} font from {font_path}")
+            # Map the base font name to the variants
+            addMapping(font_name, 0, 0, font_name) # Normal -> Your regular TTF
+            addMapping(font_name, 0, 1, font_name_italic) # Italic -> Your italic TTF
+            addMapping(font_name, 1, 0, font_name_bold) # Bold -> Standard Times-Bold
+            addMapping(font_name, 1, 1, font_name_bold_italic) # BoldItalic -> Standard Times-BoldItalic
+            registered_successfully = True
+            print(f"[PDF Report] Successfully registered {font_name} and {font_name_italic} fonts")
         else:
-            print(f"[PDF Report] Font file not found at {font_path}. Cannot generate PDF with correct font.")
-            # Raise an error to show clearly font wasn't found
-            raise FileNotFoundError(f"Required font file not found: {font_path}")
+            missing = []
+            if not font_exists: missing.append(font_path)
+            if not font_italic_exists: missing.append(font_path_italic)
+            print(f"[PDF Report] Font file(s) not found: {missing}. Falling back to Helvetica.")
+            # No error raise here, fallback will happen
 
     except Exception as e:
-        print(f"[PDF Report] Error registering or mapping {font_name} font ({e}).")
-        # Re-raise the exception to get a full traceback in error log
-        raise e
+        print(f"[PDF Report] Error registering or mapping fonts ({e}). Falling back to Helvetica.")
 
-    # Fallback logic temporarily commented out for debugging
-    # # Fallback if TimesNewRomanPSMT registration failed
-    # if not registered_successfully:
-    #     font_name = 'Helvetica'
-    #     font_name_bold = 'Helvetica-Bold'
-    #     # Ensure base Helvetica styles are used
-    #     addMapping('Helvetica', 0, 0, 'Helvetica')
-    #     addMapping('Helvetica', 1, 0, 'Helvetica-Bold')
-    #     addMapping('Helvetica', 0, 1, 'Helvetica-Oblique')
-    #     addMapping('Helvetica', 1, 1, 'Helvetica-BoldOblique')
+    # Fallback if TTF registration failed
+    if not registered_successfully:
+        font_name = 'Helvetica'
+        font_name_bold = 'Helvetica-Bold'
+        font_name_italic = 'Helvetica-Oblique'
+        font_name_bold_italic = 'Helvetica-BoldOblique'
+        # Ensure base Helvetica styles are used
+        addMapping('Helvetica', 0, 0, font_name)
+        addMapping('Helvetica', 1, 0, font_name_bold)
+        addMapping('Helvetica', 0, 1, font_name_italic)
+        addMapping('Helvetica', 1, 1, font_name_bold_italic)
 
 
-    # --- Styles using the registered font (Must be TimesNewRomanPSMT at this point) ---
+    # --- Styles using the registered font (TimesNewRomanPSMT or Helvetica fallback) ---
     styles = getSampleStyleSheet()
     # Use the standard bold name for headers, your TTF name for normal text
     styles['h1'].fontName = font_name_bold
@@ -93,6 +98,8 @@ def generate_report(request):
     styles['h3'].fontName = font_name_bold
     styles['Normal'].fontName = font_name
     styles['Bullet'].fontName = font_name
+    # If you need specific italic style:
+    # styles.add(ParagraphStyle(name='ItalicStyle', parent=styles['Normal'], fontName=font_name_italic))
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     story = []
