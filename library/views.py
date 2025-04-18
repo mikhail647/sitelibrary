@@ -827,29 +827,31 @@ def my_fines(request):
 
 @staff_required
 def manage_requests(request):
-    """Displays pending book requests for staff approval/rejection."""
-    requests_query = BookRequest.objects.filter(status='pending').select_related(
+    """Displays pending and approved book requests for staff approval/issuing."""
+    # Fetch requests that are either pending or approved
+    requests_query = BookRequest.objects.filter(status__in=['pending', 'approved']).select_related(
         'user', 'book', 'requested_location'
     )
 
-    # Filtering by location
+    # Filtering by location (keep existing logic)
     location_filter = request.GET.get('location', '')
-    # Store selected location in session for persistence
     if location_filter:
         request.session['staff_location_filter'] = location_filter
     elif 'staff_location_filter' in request.session:
-        location_filter = request.session['staff_location_filter'] # Use stored filter
+        location_filter = request.session['staff_location_filter']
 
     if location_filter:
         requests_query = requests_query.filter(requested_location__location_id=location_filter)
 
-    pending_requests = requests_query.order_by('request_date')
+    # Order requests, maybe pending first then approved?
+    active_requests = requests_query.order_by('status', 'request_date') # Pending first
+
     locations = LibraryLocation.objects.all()
 
     context = {
-        'requests': pending_requests,
+        'requests': active_requests, # Renamed for clarity
         'locations': locations,
-        'location_filter': location_filter, # Pass filter back to template
+        'location_filter': location_filter,
     }
     return render(request, 'staff/manage_requests.html', context)
 
