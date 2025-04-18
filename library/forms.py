@@ -40,6 +40,29 @@ class BookLoanForm(forms.ModelForm):
         model = BookLoan
         fields = ['reader', 'copy']
 
+    def __init__(self, *args, **kwargs):
+        # Check if we are initializing from a request context
+        is_from_request = kwargs.pop('is_from_request', False)
+        reader_instance = kwargs.get('initial', {}).get('reader')
+
+        super().__init__(*args, **kwargs)
+
+        # If initialized from a request with a reader, make reader not required
+        # and disable the widget. The view will handle setting the reader.
+        if is_from_request and reader_instance:
+            self.fields['reader'].required = False
+            self.fields['reader'].widget.attrs['disabled'] = True
+            # Ensure the initial value is correctly set for display
+            self.initial['reader'] = reader_instance
+        elif 'disabled' in self.fields['reader'].widget.attrs:
+            # Clean up disabled attribute if not from request (e.g., on form error refresh)
+            del self.fields['reader'].widget.attrs['disabled']
+
+        # Ensure copy queryset is passed if provided (view needs to handle this)
+        copy_queryset = kwargs.pop('copy_queryset', None)
+        if copy_queryset is not None:
+             self.fields['copy'].queryset = copy_queryset
+
 # --- Registration Form --- #
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
