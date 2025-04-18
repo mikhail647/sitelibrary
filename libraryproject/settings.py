@@ -21,22 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-_wl5!@d9ytu1^cbf+ig--4g#jmao02ryb6+n(83-_&057@s5u9'
-# !! IMPORTANT !!
-# Set the SECRET_KEY environment variable in your hosting environment.
-# Do not commit your secret key to version control.
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    # Provide a default for local development if needed, but this should fail in production if not set
-    print("WARNING: SECRET_KEY environment variable not set. Using a default (insecure) key for local development.")
-    SECRET_KEY = 'local-insecure-default-key-change-me' # Replace with a default for local dev if you like, or raise an error
+# It's highly recommended to set the SECRET_KEY environment variable on PythonAnywhere
+# for better security. However, this value will work for now.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-PLACEHOLDER-FOR-YOUR-UNIQUE-KEY-ON-PA') # Replace with a real, unique key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False # Set to False for production
+# Set DEBUG = False on PythonAnywhere
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False' # Default to True unless DJANGO_DEBUG=False
 
-# !! IMPORTANT !! Change ['*'] to your actual domain(s) on PythonAnywhere/hosting provider
+# Configure this with your PythonAnywhere username
 # Example: ALLOWED_HOSTS = ['your-username.pythonanywhere.com']
-ALLOWED_HOSTS = ['gods0ft.pythonanywhere.com']
+ALLOWED_HOSTS = ['gods0ft.pythonanywhere.com'] # Keep your existing setting
 
 
 # Application definition
@@ -89,35 +84,31 @@ WSGI_APPLICATION = 'libraryproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# !! IMPORTANT !!
-# The following database settings are for local development.
-# You MUST configure the database settings in your hosting environment (e.g., PythonAnywhere).
-# Typically, this involves setting environment variables (e.g., DATABASE_URL)
-# or using the hosting provider's database service configuration tools.
-# Commenting out the local config to avoid accidental use in production.
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'library_db',
-#         'USER': 'root',
-#         'PASSWORD': '2205', # Consider using env variable even locally
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
+# --- START PYTHONANYWHERE DATABASE CONFIG --- 
+# Replace placeholders with your actual database details from PythonAnywhere Databases tab
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'YOUR_PYTHONANYWHERE_USERNAME$YOUR_DATABASE_NAME', # e.g., 'gods0ft$library_db'
+        'USER': 'YOUR_PYTHONANYWHERE_USERNAME',          # e.g., 'gods0ft'
+        'PASSWORD': 'YOUR_DATABASE_PASSWORD',         # The password you set on PythonAnywhere
+        'HOST': 'YOUR_DATABASE_HOST',                 # e.g., 'gods0ft.mysql.pythonanywhere-services.com'
+        'PORT': '3306',
+        'OPTIONS': {
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", # Optional, uncomment if needed
+            'charset': 'utf8mb4',
+        },
+    }
+}
+# --- END PYTHONANYWHERE DATABASE CONFIG ---
 
 # Example for using dj-database-url (install it: pip install dj-database-url)
 # Needs environment variable DATABASE_URL set in production
-import dj_database_url
-DATABASES = {
-    # dj_database_url будет искать переменную окружения DATABASE_URL
-    'default': dj_database_url.config()
-}
+# import dj_database_url
+# DATABASES = {
+#     # dj_database_url будет искать переменную окружения DATABASE_URL
+#     'default': dj_database_url.config()
+# }
 # # Add your actual production DATABASE_URL from PythonAnywhere/Heroku/etc.
 # # DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True) # Example for Heroku Postgres
 
