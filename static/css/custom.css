@@ -270,6 +270,7 @@ span.select2-container {
     display: none; 
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 #loading-overlay.loading-active {
     display: flex; 
@@ -305,6 +306,195 @@ span.select2-container {
 .btn-lg {
      min-height: 48px; /* Adjust for larger buttons */
      gap: 0.4rem;
+}
+
+/* Custom CSS for Library Project */
+
+/* Sticky footer styles */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex-shrink: 0; /* Prevent shrinking: */
+    padding-top: 4.5rem; /* Height of the fixed navbar */
+}
+
+/* Navbar adjustments (optional) */
+.navbar {
+    /* Add custom navbar styles if needed */
+}
+
+/* Alert / Message styling */
+.alert {
+    /* Add custom alert styles if needed */
+}
+
+/* Form styling - Ensure Select2 looks okay with Bootstrap */
+.select2-container--default .select2-selection--single {
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    width: 100%; /* Ensure it takes available width */
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.5em;
+    color: var(--bs-body-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 20px;
+}
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6c757d;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(1.5em + .75rem);
+    right: 0.5rem;
+}
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent var(--bs-body-color) transparent;
+}
+.select2-dropdown {
+    border-color: var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border-color: var(--bs-border-color);
+}
+.select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: var(--bs-primary);
+    color: white;
+}
+span.select2-container {
+    width: 100% !important;
+}
+
+/* Add more custom styles below */
+
+/* --- Mobile Specific Styles --- */
+@media (max-width: 991.98px) { /* Target collapsed navbar state (Bootstrap LG breakpoint) */
+    .navbar-collapse {
+        /* Optional: Add background or border when collapsed */
+        /* background-color: rgba(0, 0, 0, 0.1); */
+        /* border-top: 1px solid #495057; */
+        margin-top: 0.5rem; /* Add some space above collapsed items */
+    }
+
+    .navbar-dark .navbar-nav {
+        /* Center nav items text in collapsed menu */
+       align-items: center;
+    }
+
+    .navbar-dark .navbar-nav .nav-link {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        text-align: center; /* Center text explicitly */
+        width: 90%; /* Make links take more width */
+        margin: 0.25rem auto; /* Center block element */
+        border-radius: var(--bs-border-radius);
+        border-top: none; /* Remove top border from desktop active style */
+        transform: none; /* Remove transform from desktop active style */
+        box-shadow: none; /* Remove shadow from desktop active style */
+    }
+
+    .navbar-dark .navbar-nav .nav-link.active,
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link:focus {
+        /* Consistent background for active/hover/focus on mobile */
+        background-color: #495057; 
+        color: #fff;
+        width: 90%; /* Ensure width is maintained */
+    }
+    
+    /* Style login/register buttons in collapsed menu */
+    .navbar-nav .btn {
+        width: 80%; /* Make buttons wider */
+        margin: 0.5rem auto;
+    }
+    
+    /* Adjust dropdown menu alignment if needed */
+    .navbar-nav .dropdown-menu {
+        text-align: center; /* Center dropdown items */
+        background-color: #343a40; /* Match navbar */
+        border: 1px solid #495057;
+    }
+    .navbar-dark .dropdown-item {
+        color: rgba(255, 255, 255, 0.8);
+    }
+     .navbar-dark .dropdown-item:hover,
+     .navbar-dark .dropdown-item:focus {
+        background-color: #495057;
+        color: #fff;
+    }
+
+}
+
+/* --- Book Loader Animation --- */
+#loading-overlay {
+    /* Keep existing styles: fixed, flex center, background, z-index */
+    /* Ensure flex direction is column if adding text below */
+    flex-direction: column;
+}
+
+.book-loader {
+    /* Represents the book */
+    border: 3px solid #343a40; /* Book cover color */
+    width: 100px;
+    height: 65px;
+    position: relative;
+    perspective: 150px;
+    background-color: #f8f9fa; /* Color of the back cover/last page */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border-radius: 2px 5px 5px 2px;
+}
+
+.book-loader-page {
+    /* Represents a turning page */
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%; /* Half the book width */
+    height: 100%;
+    background: #fff; /* Page color */
+    border-right: 1px solid #ced4da; /* Inner page edge */
+    transform-origin: left center;
+    animation: page-turn 1.2s infinite cubic-bezier(.6,-0.3,.4,1.2);
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+/* Stagger the animation for multiple pages */
+.book-loader-page:nth-child(1) {
+    animation-delay: 0.15s;
+}
+
+.book-loader-page:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.book-loader-page:nth-child(3) {
+    animation-delay: 0.45s;
+}
+
+@keyframes page-turn {
+    0% {
+        transform: rotateY(0deg);
+        z-index: 3; /* On top initially */
+    }
+    50% {
+        z-index: 1; /* Goes behind mid-turn */
+    }
+    100% {
+        transform: rotateY(-180deg);
+        z-index: 1; /* Stays behind */
+    }
 }
 
 /* Custom CSS for Library Project */
