@@ -450,29 +450,41 @@ span.select2-container {
     height: 65px;
     position: relative;
     perspective: 150px;
-    background-color: #f8f9fa; /* Color of the back cover/last page */
+    /* background-color: #f8f9fa; Use page color now */
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    border-radius: 5px 2px 2px 5px; /* Adjusted border radius */
+    /* Spine on the left */
+    border-radius: 2px 5px 5px 2px; 
 }
 
 .book-loader-page {
-    /* Represents a turning page */
+    /* Represents a turning page - starts on the right */
     position: absolute;
-    /* Change position to right */
-    right: 0;
+    right: auto; /* Remove previous right positioning */
+    left: 50%; /* Position starts at the middle */
     top: 0;
     width: 50%; /* Half the book width */
     height: 100%;
-    /* Page color and faint text lines */
+    /* Page color and simulated text lines with gaps */
     background-color: #fff;
-    background-image: linear-gradient(to bottom, #e0e0e0 1px, transparent 1px, transparent 5px);
-    background-size: 100% 6px; /* Line height */
-    /* Change border to left */
-    border-left: 1px solid #ced4da; /* Inner page edge */
-    /* Change transform origin to right */
-    transform-origin: right center;
+    background-image: 
+        linear-gradient(to bottom, #e0e0e0 1px, transparent 1px, transparent 5px), /* Line 1 */
+        linear-gradient(to bottom, transparent 6px, #e0e0e0 7px, transparent 7px, transparent 11px), /* Line 2 (gap) */
+        linear-gradient(to bottom, transparent 12px, #e0e0e0 13px, transparent 13px, transparent 17px), /* Line 3 (gap) */
+        linear-gradient(to bottom, transparent 18px, #e0e0e0 19px, transparent 19px, transparent 23px); /* Line 4 etc. */
+    background-repeat: repeat-y;
+    background-size: 100% 24px; /* Adjust size based on number of lines defined */
+    
+    /* Border on the right (inner page edge) */
+    border-right: 1px solid #ced4da; 
+    border-left: none; /* Ensure no left border */
+    
+    /* Transform origin on the left (spine) */
+    transform-origin: left center;
     animation: page-turn 1.2s infinite cubic-bezier(.6,-0.3,.4,1.2);
-    border-top-right-radius: 2px; /* Adjusted border radius */
+    /* Radius on the right */
+    border-top-left-radius: 0; 
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 2px; 
     border-bottom-right-radius: 2px;
 }
 
@@ -498,8 +510,8 @@ span.select2-container {
         z-index: 1; /* Goes behind mid-turn */
     }
     100% {
-        /* Change rotation direction */
-        transform: rotateY(180deg);
+        /* Rotate to the left */
+        transform: rotateY(-180deg);
         z-index: 1; /* Stays behind */
     }
 }
