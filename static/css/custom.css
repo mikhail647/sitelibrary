@@ -546,7 +546,6 @@ span.select2-container {
 
 /* Корешок книги */
 .book-loader .book-spine {
-    content: "";
     position: absolute;
     width: 16px;
     height: 100%;
