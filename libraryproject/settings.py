@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # It's highly recommended to set the SECRET_KEY environment variable on PythonAnywhere
 # for better security. However, this value will work for now.
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-PLACEHOLDER-FOR-YOUR-UNIQUE-KEY-ON-PA') # Replace with a real, unique key
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-c$n5kx!s=2p)b8z#a9q@*y+l@r^f!7g=m_x1o0v-w(q#b$t=i') # Generated default
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Set DEBUG = False on PythonAnywhere
+# Set DEBUG = False on PythonAnywhere by setting DJANGO_DEBUG=False env var
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False' # Default to True unless DJANGO_DEBUG=False
 
 # Configure this with your PythonAnywhere username
@@ -85,14 +85,14 @@ WSGI_APPLICATION = 'libraryproject.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # --- START PYTHONANYWHERE DATABASE CONFIG --- 
-# Replace placeholders with your actual database details from PythonAnywhere Databases tab
+# Using credentials provided by user
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'YOUR_PYTHONANYWHERE_USERNAME$YOUR_DATABASE_NAME', # e.g., 'gods0ft$library_db'
-        'USER': 'YOUR_PYTHONANYWHERE_USERNAME',          # e.g., 'gods0ft'
-        'PASSWORD': 'YOUR_DATABASE_PASSWORD',         # The password you set on PythonAnywhere
-        'HOST': 'YOUR_DATABASE_HOST',                 # e.g., 'gods0ft.mysql.pythonanywhere-services.com'
+        'NAME': 'gods0ft$default',
+        'USER': 'gods0ft',
+        'PASSWORD': 'Gods0ft_220507',
+        'HOST': 'gods0ft.mysql.pythonanywhere-services.com',
         'PORT': '3306',
         'OPTIONS': {
             # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", # Optional, uncomment if needed
