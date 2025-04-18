@@ -114,10 +114,35 @@ class BookRequestForm(forms.ModelForm):
         label="Желаемый пункт выдачи",
         widget=Select2Widget(attrs={'data-placeholder': 'Выберите пункт выдачи'})
     )
+    # Add the date fields
+    desired_start_date = forms.DateField(
+        label="Желаемая дата начала (необяз.)",
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
+    desired_end_date = forms.DateField(
+        label="Желаемая дата окончания (необяз.)",
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
+    )
 
     class Meta:
         model = BookRequest
-        fields = ['book', 'requested_location']
+        # Include the new date fields
+        fields = ['book', 'requested_location', 'desired_start_date', 'desired_end_date']
+
+    # Optional: Add validation to ensure end date is after start date
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("desired_start_date")
+        end_date = cleaned_data.get("desired_end_date")
+
+        if start_date and end_date:
+            if end_date < start_date:
+                raise forms.ValidationError(
+                    "Желаемая дата окончания не может быть раньше даты начала."
+                )
+        return cleaned_data
 
 # --- Interlibrary Request Form (User) --- #
 class InterlibraryRequestForm(forms.ModelForm):

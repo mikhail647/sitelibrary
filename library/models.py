@@ -407,6 +407,8 @@ class BookRequest(models.Model):
     book = models.ForeignKey(BookCatalog, on_delete=models.CASCADE, related_name='requests')
     requested_location = models.ForeignKey(LibraryLocation, on_delete=models.PROTECT, verbose_name="Желаемый пункт выдачи")
     request_date = models.DateTimeField(default=timezone.now)
+    desired_start_date = models.DateField(null=True, blank=True, verbose_name="Желаемая дата начала")
+    desired_end_date = models.DateField(null=True, blank=True, verbose_name="Желаемая дата окончания")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
     loan = models.OneToOneField(BookLoan, on_delete=models.SET_NULL, null=True, blank=True, related_name='request_origin')
     processed_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='processed_requests', limit_choices_to={'role__in': ['staff', 'admin']})

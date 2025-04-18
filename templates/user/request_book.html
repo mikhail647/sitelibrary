@@ -3,35 +3,86 @@
 {% block title %}Запрос книги{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2>Запрос книги</h2>
-    </div>
-    <div class="card-body">
-        <p>Выберите книгу и желаемый пункт выдачи. Сотрудник библиотеки рассмотрит ваш запрос.</p>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {# Render form fields manually or use crispy forms #}
-            <div class="mb-3">
-                <label for="{{ form.book.id_for_label }}" class="form-label">{{ form.book.label }}</label>
-                {{ form.book }}
-                {% if form.book.errors %}
-                    <div class="invalid-feedback d-block">
-                        {{ form.book.errors|striptags }}
-                    </div>
-                {% endif %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0 h5"><i class="fas fa-bookmark me-2"></i>Запрос книги</h2>
             </div>
-            <div class="mb-3">
-                <label for="{{ form.requested_location.id_for_label }}" class="form-label">{{ form.requested_location.label }}</label>
-                {{ form.requested_location }}
-                {% if form.requested_location.errors %}
-                    <div class="invalid-feedback d-block">
-                        {{ form.requested_location.errors|striptags }}
+            <div class="card-body">
+                <p class="card-text">Выберите книгу и желаемый пункт выдачи. Вы также можете указать желаемый период, на который вам нужна книга. Сотрудник библиотеки рассмотрит ваш запрос.</p>
+                <hr>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {# Display non-field errors if any #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.book.id_for_label }}" class="form-label">{{ form.book.label }}</label>
+                        {{ form.book }} {# Select2 Widget #}
+                        {% if form.book.help_text %}
+                            <div class="form-text">{{ form.book.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.book.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.book.errors|striptags }}
+                            </div>
+                        {% endif %}
                     </div>
-                {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.requested_location.id_for_label }}" class="form-label">{{ form.requested_location.label }}</label>
+                        {{ form.requested_location }} {# Select2 Widget #}
+                        {% if form.requested_location.help_text %}
+                            <div class="form-text">{{ form.requested_location.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.requested_location.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.requested_location.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Add new date fields #}
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.desired_start_date.id_for_label }}" class="form-label">{{ form.desired_start_date.label }}</label>
+                            {{ form.desired_start_date }} {# Date Widget with form-control #}
+                            {% if form.desired_start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.desired_start_date.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.desired_end_date.id_for_label }}" class="form-label">{{ form.desired_end_date.label }}</label>
+                            {{ form.desired_end_date }} {# Date Widget with form-control #}
+                             {% if form.desired_end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.desired_end_date.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                             <i class="fas fa-paper-plane me-2"></i>Отправить запрос
+                        </button>
+                    </div>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary">Отправить запрос</button>
-        </form>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Select2 JS if needed, already handled in base.html if form.media is present -->
 {% endblock %} 
