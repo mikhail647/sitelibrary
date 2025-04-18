@@ -553,7 +553,11 @@ span.select2-container {
     height: 100%;
     top: 0;
     left: 0;
-    background: linear-gradient(45deg, #2d3339 0%, #3e464e 100%);
+    /* Возвращаем темный фон, используем цвет похожий на переднюю обложку */
+    background: #343a40; /* Темно-серый фон */
+    /* Или можно вернуть градиент, если он предпочтительнее:
+       background: linear-gradient(45deg, #2d3339 0%, #3e464e 100%);
+    */
     border-radius: 2px 6px 6px 2px;
     transform: rotateY(-25deg) translateZ(-8px);
     backface-visibility: hidden;
